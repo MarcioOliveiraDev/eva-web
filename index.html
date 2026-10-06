@@ -2,464 +2,611 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="theme-color" content="#1d4ed8">
-  <title>EVA – Segurança Escolar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#FFF8EC">
+  <meta name="description" content="EVA – Emergência, Vida e Ação. Contatos, serviços e orientações de emergência em um só lugar.">
+  <title>EVA – Emergência, Vida e Ação</title>
+  <link rel="icon" href="assets/images/logo.jpeg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;900&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css'">
   <style>
+    /* ══ Tokens — direção "Adesivo" com as cores do logo (vermelho + azul-marinho) ══ */
+    :root {
+      --ink: #14263D;        /* azul-marinho do logo: texto, contornos e sombras */
+      --paper: #FFF8EC;      /* fundo creme */
+      --card: #FFFFFF;
+      --red: #D62B2E;        /* vermelho do logo */
+      --red-soft: #FFE1DE;
+      --yellow: #FFC531;
+      --orange: #FF8A2A;
+      --green: #35C46B;
+      --blue: #7CC4F2;
+      --lilac: #C8B8F4;
+      --pink: #FF9DB5;
+      --teal: #7FD9C6;
+      --muted: #5E6B7C;
+      --faint: #9AA5B3;
+      --bd: 2.5px solid var(--ink);
+      --sh: 4px 4px 0 var(--ink);
+      --sh-sm: 3px 3px 0 var(--ink);
+      --display: 'Archivo', 'Arial Black', sans-serif;
+      --text: 'Karla', 'Segoe UI', system-ui, sans-serif;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    html, body { height: 100%; }
     body {
-      font-family: 'Roboto', sans-serif;
-      background: #f0f4ff;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
+      font-family: var(--text);
+      color: var(--ink);
+      background: #E9E2D3;
+      display: flex; justify-content: center;
+      -webkit-font-smoothing: antialiased;
     }
+    button, input, select, textarea { font-family: inherit; color: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
-    /* ── Shell mobile ── */
+    .ic { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.2;
+          stroke-linecap: round; stroke-linejoin: round; display: block; flex: none; }
+
+    /* ══ Shell ══ */
     .phone {
-      width: 100%;
-      max-width: 430px;
-      min-height: 100vh;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 0 40px rgba(0,0,0,.18);
+      width: 100%; max-width: 430px;
+      height: 100vh; height: 100dvh;
+      background: var(--paper);
+      display: flex; flex-direction: column;
+      border-inline: var(--bd);
     }
+    @media (max-width: 434px) { .phone { border-inline: 0; } }
 
-    /* ── AppBar ── */
+    .page { display: none; }
+    .page.active { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+    .content { flex: 1; min-height: 0; overflow-y: auto; }
+
+    /* ══ AppBar ══ */
     .appbar {
-      background: #dbeafe;
-      color: #1e3a8a;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 18px;
-      font-weight: 700;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      flex: none; height: 56px; padding: 0 12px;
+      display: grid; grid-template-columns: 40px 1fr 40px; align-items: center;
+      background: var(--paper); border-bottom: var(--bd);
     }
-    .appbar span { flex: 1; text-align: center; }
-    .appbar .icon-btn {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: #1e3a8a;
+    .appbar h1 {
+      text-align: center; font-family: var(--display); font-weight: 900;
+      font-size: 18px; letter-spacing: .03em; text-transform: uppercase;
     }
-
-    /* ── Conteúdo ── */
-    .content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 20px 16px;
-    }
-
-    /* ── Avatar ── */
-    .avatar-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-    .avatar-wrap {
-      position: relative;
-      width: 120px; height: 120px;
-      cursor: pointer;
-    }
-    .avatar {
-      width: 120px; height: 120px;
-      border-radius: 50%;
-      background: #dbeafe;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 60px; color: #1d4ed8;
-      overflow: hidden;
-    }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .avatar-cam {
-      position: absolute;
-      bottom: 2px; right: 2px;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: #1d4ed8;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff;
-      font-size: 18px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.3);
-    }
-    .avatar-hint { margin-top: 8px; font-size: 12px; color: #6b7280; }
-    .user-email  { font-size: 13px; color: #6b7280; margin-top: 2px; }
-
-    /* ── Campos ── */
-    .field { margin-bottom: 16px; }
-    .field label {
-      display: block;
-      font-size: 12px; font-weight: 500;
-      color: #374151;
-      margin-bottom: 4px; padding-left: 2px;
-    }
-    .field-row {
-      display: flex; align-items: center;
-      border: 1.5px solid #d1d5db;
-      border-radius: 12px;
-      background: #f9fafb;
-      padding: 10px 14px; gap: 10px;
-      transition: border-color .2s;
-    }
-    .field-row:focus-within { border-color: #1d4ed8; background: #fff; }
-    .field-row .fi { font-size: 20px; color: #6b7280; flex-shrink: 0; }
-    .field-row input,
-    .field-row select,
-    .field-row textarea {
-      flex: 1; border: none; outline: none;
-      font-size: 15px; font-family: inherit;
-      background: transparent; color: #111827; resize: none;
-    }
-    .field-row textarea { min-height: 52px; }
-
-    /* ── Section label ── */
-    .section-label {
-      font-size: 11px; font-weight: 700;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: #9ca3af; margin: 20px 0 10px;
-    }
-
-    /* ── Botão Salvar ── */
-    .btn-save {
-      width: 100%; height: 52px;
-      border: none; border-radius: 12px;
-      background: #1d4ed8; color: #fff;
-      font-size: 16px; font-weight: 600;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      margin-top: 8px;
-      transition: background .2s, transform .1s;
-    }
-    .btn-save:active  { transform: scale(.98); }
-    .btn-save:hover   { background: #1e40af; }
-
-    /* ── Bottom Nav ── */
-    .bottom-nav {
-      display: flex;
-      border-top: 1px solid #e5e7eb;
-      background: #fff;
-      padding: 6px 0 10px;
-    }
-    .nav-item {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; gap: 3px; cursor: pointer;
-      padding: 6px 0; color: #9ca3af;
-      font-size: 11px; font-weight: 500;
-      transition: color .15s; text-decoration: none;
-    }
-    .nav-item.active { color: #1d4ed8; }
-    .nav-item .ni { font-size: 24px; }
-
-    /* ── Toast ── */
-    .toast {
-      position: fixed; bottom: 80px;
-      left: 50%; transform: translateX(-50%);
-      background: #166534; color: #fff;
-      padding: 12px 24px; border-radius: 8px;
-      font-size: 14px; font-weight: 500;
-      opacity: 0; transition: opacity .3s;
-      z-index: 100; white-space: nowrap;
-    }
-    .toast.show { opacity: 1; }
-
-    /* ── Páginas ── */
-    .page { display: none; flex-direction: column; height: 100%; }
-    .page.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-
-    /* ── Emergência ── */
-    .emergency-content { background: #fff1f2; flex: 1; overflow-y: auto; padding: 20px; }
-    .em-hint { font-size: 14px; font-weight: 600; color: #991b1b; text-align: center; margin-bottom: 20px; }
-    .em-btn {
-      display: flex; align-items: center; gap: 16px;
-      width: 100%; border: none; border-radius: 16px;
-      padding: 18px 20px; cursor: pointer; color: #fff;
-      margin-bottom: 14px; font-family: inherit;
-      box-shadow: 0 4px 12px rgba(0,0,0,.15);
-      transition: transform .1s, opacity .15s;
-    }
-    .em-btn:active { transform: scale(.98); opacity: .9; }
-    .em-btn .ei { font-size: 36px; }
-    .em-btn .et { text-align: left; }
-    .em-btn .et strong { display: block; font-size: 20px; font-weight: 700; }
-    .em-btn .et small  { font-size: 13px; opacity: .85; }
-    .em-btn .arr { margin-left: auto; font-size: 24px; }
-
-    /* ── Guia ── */
-    .guide-content { flex: 1; overflow-y: auto; padding: 16px; }
-    details {
-      background: #fff; border-radius: 12px; margin-bottom: 12px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden;
-    }
-    summary {
-      display: flex; align-items: center; gap: 12px;
-      padding: 16px; cursor: pointer; list-style: none;
-      font-weight: 700; font-size: 15px;
-    }
-    summary::-webkit-details-marker { display: none; }
-    .sum-icon {
+    .icon-btn {
       width: 40px; height: 40px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; flex-shrink: 0;
+      display: grid; place-items: center; background: none; border: 0;
     }
-    .sum-arr { margin-left: auto; font-size: 20px; color: #9ca3af; transition: transform .2s; }
-    details[open] .sum-arr { transform: rotate(180deg); }
-    .tip { display: flex; gap: 12px; padding: 10px 16px; border-top: 1px solid #f3f4f6; }
-    .tip-step {
-      background: #dbeafe; color: #1e3a8a;
-      font-size: 12px; font-weight: 700;
-      border-radius: 6px; padding: 3px 8px;
-      white-space: nowrap; height: fit-content;
+    button.icon-btn { background: var(--yellow); border: var(--bd); box-shadow: 2px 2px 0 var(--ink); }
+    button.icon-btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    button.icon-btn .ic { width: 20px; height: 20px; }
+
+    /* ══ Peças comuns ══ */
+    .sec { padding: 22px 20px 0; }
+    .lbl {
+      font-family: var(--display); font-weight: 900; font-size: 11.5px;
+      letter-spacing: .13em; text-transform: uppercase; margin-bottom: 10px;
     }
-    .tip-desc { font-size: 13px; color: #374151; line-height: 1.5; }
+    .sticker {
+      background: var(--card); border: var(--bd); border-radius: 18px; box-shadow: var(--sh);
+    }
+    .press { transition: transform .08s, box-shadow .08s; }
+    .press:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ══ Home ══ */
+    .hero { padding: 26px 20px 4px; text-align: center; }
+    .hero .logo {
+      display: inline-block; width: 208px; padding: 6px; border-radius: 26px;
+      transform: rotate(-2.2deg); box-shadow: 6px 6px 0 var(--ink); margin-bottom: 20px;
+    }
+    .hero .logo img { width: 100%; display: block; border-radius: 18px; }
+    .hero .desc {
+      font-family: var(--display); font-weight: 900; font-size: 12.5px;
+      letter-spacing: .14em; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .hero .desc i { color: var(--red); font-style: normal; }
+    .badge {
+      display: inline-block; background: var(--yellow); border: var(--bd); border-radius: 999px;
+      padding: 7px 16px; font-size: 13px; font-weight: 700; box-shadow: var(--sh-sm);
+    }
+    .cta {
+      margin: 22px 20px 0; width: calc(100% - 40px); min-height: 64px;
+      display: flex; align-items: center; gap: 12px; padding: 12px 18px;
+      background: var(--red); color: #fff; border: var(--bd); border-radius: 18px;
+      box-shadow: 5px 5px 0 var(--ink); text-align: left;
+    }
+    .cta .ic { width: 30px; height: 30px; }
+    .cta strong { display: block; font-family: var(--display); font-weight: 900; font-size: 17px; text-transform: uppercase; letter-spacing: .02em; }
+    .cta small { font-size: 12.5px; opacity: .92; }
+    .about { padding: 16px; font-size: 14.5px; line-height: 1.6; color: #33445A; }
+    .about b { color: var(--ink); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .feat {
+      border: var(--bd); border-radius: 18px; box-shadow: var(--sh);
+      padding: 15px 10px; text-align: center; background: var(--bg, #fff);
+    }
+    .feat .ic { width: 28px; height: 28px; margin: 0 auto 8px; }
+    .feat strong { display: block; font-family: var(--display); font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: .02em; }
+    .feat small { font-size: 11.5px; opacity: .85; line-height: 1.35; display: block; margin-top: 2px; }
+    .formula {
+      margin: 22px 20px 0; padding: 12px 14px; text-align: center;
+      border: 2.5px dashed var(--ink); border-radius: 16px;
+      font-family: var(--display); font-weight: 900; font-size: 12.5px; letter-spacing: .04em; text-transform: uppercase;
+    }
+    .formula i { color: var(--red); font-style: normal; }
+    .foot { padding: 22px 20px 28px; text-align: center; font-size: 12px; color: var(--muted); line-height: 1.7; }
+    .foot b { display: block; color: var(--ink); font-family: var(--display); font-weight: 900; }
 
-    /* ── Mapa ── */
-    .map-wrapper { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-    #map { flex: 1; }
+    /* ══ Emergência ══ */
+    .em-hint {
+      font-family: var(--display); font-weight: 900; font-size: 13px; text-transform: uppercase;
+      letter-spacing: .05em; text-align: center; padding: 18px 22px 0;
+    }
+    .em-list { padding: 12px 18px 0; display: flex; flex-direction: column; gap: 13px; }
+    .em {
+      display: flex; align-items: center; gap: 12px; width: 100%; min-height: 68px;
+      padding: 12px 14px; text-align: left;
+      background: var(--bg); color: var(--fg, var(--ink));
+      border: var(--bd); border-radius: 16px; box-shadow: var(--sh);
+    }
+    .em .ic { width: 28px; height: 28px; }
+    .em .tx { flex: 1; min-width: 0; }
+    .em .tx strong { display: block; font-family: var(--display); font-weight: 900; font-size: 16px; text-transform: uppercase; letter-spacing: .01em; line-height: 1.2; }
+    .em .tx small { font-size: 12.5px; opacity: .9; }
+    .em .num {
+      font-family: var(--display); font-weight: 900; font-size: 17px; font-variant-numeric: tabular-nums;
+      background: var(--paper); color: var(--ink); border: var(--bd); border-radius: 999px; padding: 2px 12px;
+    }
+    .em-note { font-size: 12.5px; color: var(--muted); text-align: center; padding: 18px 26px 24px; line-height: 1.6; }
+
+    /* ══ Mapa ══ */
+    .map-search { flex: none; display: flex; gap: 8px; padding: 10px 12px 0; }
+    .map-search input {
+      flex: 1; min-width: 0; height: 44px; padding: 0 14px; font-size: 16px;
+      background: #fff; border: var(--bd); border-radius: 999px; outline: none;
+    }
+    .map-search input:focus { box-shadow: var(--sh-sm); }
+    .map-search button {
+      width: 44px; height: 44px; flex: none; display: grid; place-items: center;
+      background: var(--ink); color: #fff; border: var(--bd); border-radius: 50%;
+    }
+    .map-search button .ic { width: 20px; height: 20px; }
     .map-filters {
-      display: flex; gap: 8px; padding: 10px 12px;
-      overflow-x: auto; background: #fff;
-      border-bottom: 1px solid #e5e7eb;
-      scrollbar-width: none;
+      flex: none; display: flex; gap: 8px; padding: 10px 12px 12px;
+      overflow-x: auto; scrollbar-width: none; border-bottom: var(--bd);
     }
     .map-filters::-webkit-scrollbar { display: none; }
     .filter-chip {
-      display: flex; align-items: center; gap: 5px;
-      border: 1.5px solid #d1d5db; border-radius: 20px;
-      padding: 5px 13px; font-size: 13px; font-weight: 500;
-      white-space: nowrap; cursor: pointer; background: #f9fafb;
-      font-family: inherit; color: #374151; transition: all .15s;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap; min-height: 38px;
+      padding: 5px 13px; font-size: 13.5px; font-weight: 700;
+      background: #fff; border: var(--bd); border-radius: 999px;
     }
-    .filter-chip.active { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+    .filter-chip .ic { width: 16px; height: 16px; }
+    .filter-chip.active { background: var(--ink); color: #fff; box-shadow: 2px 2px 0 var(--red); }
+
+    .map-area { flex: 1; min-height: 0; position: relative; isolation: isolate; background: #DDE6EC; }
+    #leaflet-map { position: absolute; inset: 0; font-family: var(--text); }
     .map-status {
-      position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
-      background: rgba(255,255,255,.95); border-radius: 20px;
-      padding: 6px 16px; font-size: 13px; font-weight: 500;
-      color: #374151; box-shadow: 0 2px 8px rgba(0,0,0,.15);
-      z-index: 1000; display: none;
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1100;
+      display: none; align-items: center; gap: 10px; max-width: calc(100% - 80px);
+      background: #fff; border: var(--bd); border-radius: 999px; box-shadow: var(--sh-sm);
+      padding: 6px 14px; font-size: 13px; font-weight: 700; text-align: center;
     }
-    .map-status.show { display: block; }
-    .leaflet-popup-content { font-family: 'Roboto', sans-serif; min-width: 180px; }
-    .popup-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; color: #111827; }
-    .popup-type  { font-size: 12px; color: #6b7280; margin-bottom: 8px; }
-    .popup-btn {
-      display: block; width: 100%; padding: 7px; border-radius: 8px;
-      background: #1d4ed8; color: #fff; border: none; font-size: 13px;
-      font-weight: 600; cursor: pointer; text-align: center; font-family: inherit;
+    .map-status.show { display: flex; }
+    .map-status button {
+      background: var(--yellow); border: 2px solid var(--ink); border-radius: 999px;
+      padding: 2px 10px; font-size: 12.5px; font-weight: 700; white-space: nowrap;
     }
-    .popup-btn:hover { background: #1e40af; }
+    .fab {
+      position: absolute; right: 12px; top: 10px; z-index: 1100; width: 44px; height: 44px;
+      display: grid; place-items: center; background: #fff; border: var(--bd);
+      border-radius: 50%; box-shadow: var(--sh-sm);
+    }
+    .fab:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+    .map-overlay {
+      position: absolute; inset: 0; z-index: 1200; background: var(--paper);
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; padding: 20px; text-align: center; overflow-y: auto;
+    }
+    .map-overlay.show { display: flex; }
+    /* Cartão de ajuda: deixa o mapa visível por trás (o cartão fica embaixo) */
+    .map-overlay.card-mode { background: transparent; justify-content: flex-end; padding: 10px; pointer-events: none; }
+    .map-overlay.card-mode .perm-card { pointer-events: auto; max-height: 100%; overflow-y: auto; }
+    /* Com o cartão aberto, a lista sai da frente para o cartão caber inteiro */
+    #pg-mapa.com-cartao .near { display: none; }
+    .spinner {
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 5px solid var(--red-soft); border-top-color: var(--red);
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #map-loading-msg { font-weight: 700; font-size: 14.5px; }
+    .perm-card { padding: 18px; max-width: 330px; width: 100%; display: none; }
+    .perm-card .ic { width: 34px; height: 34px; margin: 0 auto 8px; color: var(--red); }
+    .perm-card h2 { font-family: var(--display); font-weight: 900; font-size: 15px; text-transform: uppercase; letter-spacing: .02em; margin-bottom: 8px; }
+    .perm-card p { font-size: 13.5px; color: #33445A; line-height: 1.55; margin-bottom: 12px; }
+    .perm-card ol { text-align: left; font-size: 13.5px; line-height: 1.7; margin: 0 0 14px; padding-left: 20px; }
+    .perm-actions { display: flex; flex-direction: column; gap: 10px; }
+    .btn {
+      width: 100%; min-height: 46px; padding: 8px 14px; font-size: 14px; font-weight: 700;
+      border: var(--bd); border-radius: 12px; box-shadow: var(--sh-sm); background: #fff;
+    }
+    .btn[hidden] { display: none; }
+    .btn.primary { background: var(--red); color: #fff; }
+    .map-note {
+      position: absolute; left: 10px; right: 56px; bottom: 24px; z-index: 1100;
+      display: none; align-items: center; gap: 8px; padding: 8px 8px 8px 12px;
+      background: #fff; border: var(--bd); border-radius: 14px; box-shadow: var(--sh-sm);
+      font-size: 12.5px; font-weight: 700; line-height: 1.35;
+    }
+    .map-note.show { display: flex; }
+    .map-note span { flex: 1; min-width: 0; }
+    .map-note-go {
+      flex: none; padding: 6px 10px; font-size: 12.5px; font-weight: 700; white-space: nowrap;
+      background: var(--yellow); border: 2px solid var(--ink); border-radius: 999px;
+    }
+    .map-note-x { flex: none; width: 28px; height: 28px; display: grid; place-items: center; background: none; border: 0; }
+    .map-note-x .ic { width: 18px; height: 18px; }
+
+    .near { flex: none; max-height: 38%; overflow-y: auto; border-top: var(--bd); background: var(--paper); }
+    .near:empty { display: none; }
+    .near h2 {
+      position: sticky; top: 0; background: var(--paper); z-index: 1;
+      font-family: var(--display); font-weight: 900; font-size: 11.5px; letter-spacing: .12em;
+      text-transform: uppercase; padding: 10px 14px 6px;
+    }
+    .near p { padding: 4px 14px 14px; font-size: 13.5px; color: var(--muted); }
+    .near ul { list-style: none; padding: 0 10px 10px; }
+    .near li { display: flex; align-items: center; gap: 6px; border-bottom: 1.5px dashed #D9CFBB; }
+    .near li:last-child { border-bottom: 0; }
+    .near-main {
+      flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;
+      background: none; border: 0; text-align: left; padding: 8px 4px; min-height: 52px;
+    }
+    .near-main .nm { display: block; font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .near-main .sb { display: block; font-size: 12px; color: var(--muted); }
+    .near-main > span:last-child { min-width: 0; }
+    .near-act {
+      width: 40px; height: 40px; flex: none; display: grid; place-items: center; color: var(--ink);
+      background: #fff; border: var(--bd); border-radius: 50%; box-shadow: 2px 2px 0 var(--ink);
+    }
+    .near-act .ic { width: 18px; height: 18px; }
+    .near-act.go { background: var(--yellow); }
+
+    .pin {
+      width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+      border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+      background: var(--bg); color: var(--fg, var(--ink));
+    }
+    .pin .ic { width: 18px; height: 18px; }
+    .near-main .pin { flex: none; box-shadow: none; }
+    .me {
+      width: 20px; height: 20px; border-radius: 50%; background: var(--red);
+      border: 3px solid #fff; box-shadow: 0 0 0 3px var(--ink), 0 0 0 9px rgba(214, 43, 46, .25);
+    }
+    .leaflet-popup-content-wrapper { border: var(--bd); border-radius: 14px; box-shadow: var(--sh-sm); }
+    .leaflet-popup-content { font-family: var(--text); min-width: 180px; margin: 12px 14px; color: var(--ink); }
+    .leaflet-popup-tip { border: var(--bd); box-shadow: none; }
+    .popup-title { font-weight: 700; font-size: 14.5px; margin-bottom: 2px; }
+    .popup-type { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
+    .popup-row { display: flex; gap: 8px; }
+    a.popup-btn {
+      flex: 1; display: block; padding: 7px 8px; text-align: center; text-decoration: none;
+      font-size: 13px; font-weight: 700; color: var(--ink);
+      background: var(--yellow); border: 2px solid var(--ink); border-radius: 10px;
+    }
+    a.popup-btn.alt { background: #fff; }
+
+    /* ══ Guia ══ */
+    .guide-content { padding: 18px 18px 8px; }
+    details { background: #fff; border: var(--bd); border-radius: 16px; box-shadow: var(--sh); margin-bottom: 16px; overflow: hidden; }
+    summary {
+      display: flex; align-items: center; gap: 12px; padding: 13px 14px; cursor: pointer; list-style: none;
+      font-family: var(--display); font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: .02em;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .sum-icon {
+      width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center;
+      border: var(--bd); background: var(--bg);
+    }
+    .sum-icon .ic { width: 20px; height: 20px; }
+    .sum-arr { margin-left: auto; transition: transform .2s; }
+    .sum-arr .ic { width: 20px; height: 20px; }
+    details[open] .sum-arr { transform: rotate(180deg); }
+    .tip { display: flex; gap: 12px; padding: 11px 14px; border-top: 1.5px dashed #D9CFBB; }
+    .tip-step {
+      background: var(--yellow); border: 2px solid var(--ink); border-radius: 8px;
+      font-size: 12px; font-weight: 700; padding: 2px 8px; white-space: nowrap; height: fit-content;
+    }
+    .tip-desc { font-size: 13.5px; color: #33445A; line-height: 1.5; }
+
+    /* ══ Perfil ══ */
+    .avatar-section { display: flex; flex-direction: column; align-items: center; padding: 22px 20px 0; }
+    .avatar-wrap { position: relative; width: 96px; height: 96px; background: none; border: 0; }
+    .avatar {
+      width: 96px; height: 96px; border-radius: 50%; overflow: hidden; background: #fff;
+      border: var(--bd); box-shadow: var(--sh); display: grid; place-items: center;
+    }
+    .avatar .ic { width: 44px; height: 44px; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-cam {
+      position: absolute; right: -6px; bottom: -2px; width: 36px; height: 36px; border-radius: 50%;
+      background: var(--red); color: #fff; border: var(--bd); display: grid; place-items: center;
+    }
+    .avatar-cam .ic { width: 17px; height: 17px; }
+    .avatar-hint { margin-top: 14px; font-family: var(--display); font-weight: 900; font-size: 11px; letter-spacing: .09em; text-transform: uppercase; }
+    .user-note { font-size: 12.5px; color: var(--muted); margin-top: 3px; text-align: center; }
+    .form { padding: 0 20px 24px; }
+    .form .lbl { margin-top: 22px; }
+    .field { margin-bottom: 13px; }
+    .field label { display: block; font-family: var(--display); font-weight: 700; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 5px 2px; }
+    .field-row {
+      display: flex; align-items: center; gap: 10px; padding: 9px 13px; min-height: 52px;
+      background: #fff; border: var(--bd); border-radius: 14px; box-shadow: var(--sh-sm);
+    }
+    .field-row:focus-within { box-shadow: 3px 3px 0 var(--red); }
+    .field-row .ic { width: 20px; height: 20px; }
+    .field-row input, .field-row select, .field-row textarea {
+      flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 16px; resize: none;
+    }
+    .field-row textarea { min-height: 46px; }
+    ::placeholder { color: var(--faint); }
+    .chips { display: flex; gap: 10px; flex-wrap: wrap; }
+    .chip {
+      display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 15px;
+      font-size: 13.5px; font-weight: 700; background: #fff; color: var(--muted);
+      border: var(--bd); border-radius: 999px; box-shadow: var(--sh-sm);
+    }
+    .chip .ic { width: 18px; height: 18px; }
+    .chip[aria-pressed="true"] { background: var(--teal); color: var(--ink); }
+    .btn-save {
+      width: 100%; height: 56px; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 9px;
+      background: var(--red); color: #fff; border: var(--bd); border-radius: 16px; box-shadow: 5px 5px 0 var(--ink);
+      font-family: var(--display); font-weight: 900; font-size: 15px; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .btn-save:disabled { opacity: .7; }
+    .btn-save .ic { width: 20px; height: 20px; stroke-width: 2.8; }
+
+    /* ══ Bottom nav ══ */
+    .bottom-nav {
+      flex: none; display: flex; background: var(--paper); border-top: var(--bd);
+      padding: 7px 4px calc(9px + env(safe-area-inset-bottom));
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0;
+      background: none; border: 0; color: var(--faint);
+      font-family: var(--display); font-weight: 700; font-size: 10.5px;
+    }
+    .nav-item .ic { width: 30px; height: 30px; padding: 4px; border-radius: 9px; border: 2px solid transparent; }
+    .nav-item.active { color: var(--ink); }
+    .nav-item.active .ic { background: var(--yellow); border-color: var(--ink); }
+
+    /* ══ Toast ══ */
+    .toast {
+      position: fixed; bottom: 92px; left: 50%; transform: translateX(-50%); z-index: 3000;
+      max-width: min(92vw, 400px); padding: 11px 18px; text-align: center;
+      background: var(--ink); color: #fff; border: 2.5px solid #fff; border-radius: 12px;
+      font-size: 14px; font-weight: 700; opacity: 0; pointer-events: none; transition: opacity .25s;
+    }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
+
+<!-- Ícones (SVG: escalam e recolorem; substituem os emojis) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 10.4 12 3.6l8.5 6.8"/><path d="M6 9.6V20h12V9.6"/></symbol>
+  <symbol id="i-siren" viewBox="0 0 24 24"><path d="M5.5 20.2h13"/><path d="M7.2 20.2v-5.6a4.8 4.8 0 0 1 9.6 0v5.6"/><path d="M12 3.2v2.1M5.6 6.2 7 7.6M18.4 6.2 17 7.6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 20.6s6.4-5.8 6.4-10.3a6.4 6.4 0 1 0-12.8 0c0 4.5 6.4 10.3 6.4 10.3Z"/><circle cx="12" cy="10.2" r="2.4"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.6C10.6 5.2 8.4 4.5 4.5 4.7v12.6c3.9-.2 6.1.5 7.5 1.9 1.4-1.4 3.6-2.1 7.5-1.9V4.7c-3.9-.2-6.1.5-7.5 1.9Z"/><path d="M12 6.6v12.6"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.5"/><path d="M5 19.8c.9-3.4 3.7-5.1 7-5.1s6.1 1.7 7 5.1"/></symbol>
+  <symbol id="i-cross" viewBox="0 0 24 24"><rect x="3.5" y="5.6" width="17" height="12.8" rx="3.4"/><path d="M12 9.4v5.2M9.4 12h5.2"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.4 5.6 6.1v5.2c0 4 2.7 7.1 6.4 8.8 3.7-1.7 6.4-4.8 6.4-8.8V6.1L12 3.4Z"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12.7 3.2c.5 2.7-1.1 3.9-2.4 5.2-1.4 1.3-2.3 2.7-2.3 4.6a5.4 5.4 0 0 0 10.8 0c0-2.4-1.4-3.7-2.4-4.8-.7-.8-1-1.5-.9-2.4-.9.5-1.4 1.4-1.5 2.3-.9-1.3-1.6-3.2-1.3-4.9Z"/></symbol>
+  <symbol id="i-house" viewBox="0 0 24 24"><path d="M3.5 10.4 12 3.6l8.5 6.8"/><path d="M6 9.6V20h12V9.6"/><path d="M12 12.2 10.3 15h3.4L12 17.8"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 19.9S4.8 15.4 4.8 10.6a4.2 4.2 0 0 1 7.2-2.9 4.2 4.2 0 0 1 7.2 2.9c0 4.8-7.2 9.3-7.2 9.3Z"/></symbol>
+  <symbol id="i-woman" viewBox="0 0 24 24"><circle cx="12" cy="5.8" r="2.7"/><path d="M12 10 7.4 18.4h9.2L12 10Z"/><path d="M10.4 18.4v2.4M13.6 18.4v2.4"/></symbol>
+  <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M4 10.2v3.6h3.2l8.4 4.2V6L7.2 10.2H4Z"/><path d="M18.6 9.4a4 4 0 0 1 0 5.2"/><path d="m8 13.8 1 4.8"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20.2 11.8a8 8 0 0 1-11.8 7.1L4 20.4l1.6-4.3a8 8 0 1 1 14.6-4.3Z"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24"><path d="M3.4 9A2.1 2.1 0 0 1 5.5 6.9h1.9l1.3-2h6.6l1.3 2h1.9A2.1 2.1 0 0 1 20.6 9v8.3a2.1 2.1 0 0 1-2.1 2.1H5.5a2.1 2.1 0 0 1-2.1-2.1V9Z"/><circle cx="12" cy="13.1" r="3.3"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.6c3 3.6 5.4 6.3 5.4 9.1A5.4 5.4 0 0 1 6.6 12.7c0-2.8 2.4-5.5 5.4-9.1Z"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.9 2.9 19.5h18.2L12 3.9Z"/><path d="M12 9.6v4.3"/><circle cx="12" cy="16.6" r=".85" style="fill:currentColor;stroke:none"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12.2h3.6l2-4.5 3.2 8.9 2.2-4.4H21"/></symbol>
+  <symbol id="i-pill" viewBox="0 0 24 24"><rect x="3.6" y="8.4" width="16.8" height="7.2" rx="3.6" transform="rotate(-40 12 12)"/><path d="m9.7 9.2 4.6 5.6"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3.8h2.9L11 7.6l-2 1.5a11.2 11.2 0 0 0 4.9 4.9l1.5-2 3.8 1.5v2.9a2 2 0 0 1-2.2 2C10.4 17.9 6.1 13.6 4.6 6a2 2 0 0 1 2-2.2Z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.6 10 17.6 19 7.4"/></symbol>
+  <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="10.2" cy="4.6" r="1.9"/><path d="M9.2 8.4v4.8h5l2.9 5.8"/><path d="M13.4 13.2a5.1 5.1 0 1 1-5.2-3.6"/></symbol>
+  <symbol id="i-brain" viewBox="0 0 24 24"><path d="M9.6 4.4A2.9 2.9 0 0 0 6.8 8a2.7 2.7 0 0 0-1.3 5 2.8 2.8 0 0 0 1.9 4.5A2.7 2.7 0 0 0 12 18.6V6.9a2.7 2.7 0 0 0-2.4-2.5Z"/><path d="M14.4 4.4A2.9 2.9 0 0 1 17.2 8a2.7 2.7 0 0 1 1.3 5 2.8 2.8 0 0 1-1.9 4.5A2.7 2.7 0 0 1 12 18.6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 4.2v4.2h-4.2"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.2"/><circle cx="12" cy="12" r="1.6"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6"/><path d="m15.4 15.4 4.6 4.6"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><path d="M20.4 3.6 3.8 10.4l6.6 3.2 3.2 6.6 6.8-16.6Z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5.2" y="10.4" width="13.6" height="9.6" rx="2.4"/><path d="M8.2 10.4V7.8a3.8 3.8 0 0 1 7.6 0v2.6"/></symbol>
+  <symbol id="i-school" viewBox="0 0 24 24"><path d="M3.2 9.6 12 4.6l8.8 5-8.8 5-8.8-5Z"/><path d="M7 12.2v4.2c1.4 1.4 3.1 2 5 2s3.6-.6 5-2v-4.2"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M3.6 6.4 9 4.2l6 2.2 5.4-2.2v13.4L15 19.8l-6-2.2-5.4 2.2V6.4Z"/><path d="M9 4.2v13.4M15 6.4v13.4"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+</defs></svg>
+
 <div class="phone">
 
-  <!-- ═══ HOME ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══ HOME ═══ -->
   <div class="page active" id="pg-home">
-    <div class="appbar">
-      <div class="icon-btn"></div>
-      <span>EVA</span>
-      <div class="icon-btn"></div>
-    </div>
-    <div class="content" style="padding:0">
+    <header class="appbar"><span></span><h1>EVA</h1><span></span></header>
+    <div class="content">
+      <div class="hero">
+        <div class="sticker logo"><img src="assets/images/logo.jpeg" alt="EVA — Ajuda mais perto de você"></div>
+        <p class="desc">Emergência <i>·</i> Vida <i>·</i> Ação</p>
+        <span class="badge">Em uma emergência, informação também salva.</span>
+      </div>
 
-      <!-- Hero -->
-      <div style="background:linear-gradient(135deg,#1d4ed8 0%,#1e40af 60%,#0f172a 100%);
-                  padding:36px 24px 40px;text-align:center;color:#fff">
-        <div style="width:110px;height:110px;border-radius:28px;overflow:hidden;
-                    margin:0 auto 16px;box-shadow:0 8px 24px rgba(0,0,0,.3)">
-          <img src="assets/images/logo.jpeg" alt="Logo EVA"
-               style="width:100%;height:100%;object-fit:cover">
-        </div>
-        <h1 style="font-size:36px;font-weight:700;letter-spacing:.04em;margin-bottom:4px">EVA</h1>
-        <p style="font-size:13px;opacity:.75;letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px">
-          Emergência · Vigilância · Apoio
-        </p>
-        <div style="display:inline-block;background:rgba(255,255,255,.15);
-                    border-radius:20px;padding:6px 18px;font-size:12px;
-                    border:1px solid rgba(255,255,255,.25)">
-          Segurança escolar na palma da mão
+      <button class="cta press" onclick="goTo('emergencia')">
+        <svg class="ic"><use href="#i-siren"/></svg>
+        <span><strong>Preciso de ajuda agora</strong><small>Ver os números de emergência</small></span>
+      </button>
+
+      <div class="sec">
+        <p class="lbl">O que é o EVA</p>
+        <div class="sticker about">
+          O <b>EVA</b> reúne informações, contatos e serviços de emergência em um único lugar,
+          para você chegar rápido à ajuda certa. Em poucos toques você liga para SAMU, Polícia,
+          Bombeiros e Defesa Civil, encontra hospitais e delegacias perto de você, consulta
+          orientações de primeiros socorros e mantém seus dados médicos à mão.
         </div>
       </div>
 
-      <!-- Sobre -->
-      <div style="padding:24px 20px 0">
-        <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-                  color:#9ca3af;margin-bottom:10px">Sobre o Projeto</p>
-        <div style="background:#f0f4ff;border-radius:16px;padding:18px;
-                    border-left:4px solid #1d4ed8;font-size:14px;color:#374151;line-height:1.7">
-          O <strong>EVA</strong> é um aplicativo de segurança escolar desenvolvido para ajudar
-          alunos, pais e professores em situações de emergência. Com apenas um toque, você acessa
-          o SAMU, Polícia e Bombeiros, localiza hospitais próximos no mapa, consulta guias de
-          primeiros socorros e mantém seu perfil médico sempre disponível.
+      <div class="sec">
+        <p class="lbl">Funcionalidades</p>
+        <div class="grid">
+          <button class="feat press" style="--bg:var(--red-soft)" onclick="goTo('emergencia')">
+            <svg class="ic"><use href="#i-siren"/></svg><strong>Emergência</strong><small>Contatos e canais de apoio</small></button>
+          <button class="feat press" style="--bg:var(--blue)" onclick="goTo('mapa')">
+            <svg class="ic"><use href="#i-pin"/></svg><strong>Mapa</strong><small>Serviços perto de você</small></button>
+          <button class="feat press" style="--bg:var(--teal)" onclick="goTo('guia')">
+            <svg class="ic"><use href="#i-book"/></svg><strong>Guia</strong><small>Orientações e primeiros socorros</small></button>
+          <button class="feat press" style="--bg:var(--yellow)" onclick="goTo('perfil')">
+            <svg class="ic"><use href="#i-user"/></svg><strong>Perfil</strong><small>Dados médicos</small></button>
         </div>
       </div>
 
-      <!-- Cards -->
-      <div style="padding:20px 20px 0">
-        <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-                  color:#9ca3af;margin-bottom:10px">Funcionalidades</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div onclick="goTo('emergencia')" style="background:#fff1f2;border-radius:14px;padding:14px;text-align:center;cursor:pointer">
-            <div style="font-size:28px;margin-bottom:6px">🚨</div>
-            <div style="font-size:13px;font-weight:700;color:#991b1b">Emergência</div>
-            <div style="font-size:11px;color:#9ca3af;margin-top:2px">SAMU · Polícia · Bombeiros</div>
-          </div>
-          <div onclick="goTo('mapa')" style="background:#f0f9ff;border-radius:14px;padding:14px;text-align:center;cursor:pointer">
-            <div style="font-size:28px;margin-bottom:6px">📍</div>
-            <div style="font-size:13px;font-weight:700;color:#0369a1">Mapa</div>
-            <div style="font-size:11px;color:#9ca3af;margin-top:2px">Hospitais próximos</div>
-          </div>
-          <div onclick="goTo('guia')" style="background:#f0fdf4;border-radius:14px;padding:14px;text-align:center;cursor:pointer">
-            <div style="font-size:28px;margin-bottom:6px">📚</div>
-            <div style="font-size:13px;font-weight:700;color:#166534">Guia</div>
-            <div style="font-size:11px;color:#9ca3af;margin-top:2px">Primeiros Socorros</div>
-          </div>
-          <div onclick="goTo('perfil')" style="background:#faf5ff;border-radius:14px;padding:14px;text-align:center;cursor:pointer">
-            <div style="font-size:28px;margin-bottom:6px">👤</div>
-            <div style="font-size:13px;font-weight:700;color:#6b21a8">Perfil</div>
-            <div style="font-size:11px;color:#9ca3af;margin-top:2px">Dados médicos</div>
-          </div>
-        </div>
-      </div>
+      <p class="formula">EVA <i>=</i> Informação <i>+</i> Acesso <i>+</i> Orientação</p>
 
-      <!-- Rodapé -->
-      <div style="padding:24px 20px 32px;text-align:center;color:#9ca3af;font-size:12px">
-        <div style="margin-bottom:4px">Projeto desenvolvido para a semana da segurança escolar</div>
-        <div style="font-weight:600;color:#1d4ed8">EVA © 2026 · Jovens de Impacto</div>
-      </div>
+      <p class="foot">Utilidade pública, em linguagem simples.<b>EVA © 2026 · Jovens de Impacto</b></p>
     </div>
   </div>
 
-  <!-- ═══ EMERGÊNCIA ══════════════════════════════════════════════════════ -->
+  <!-- ═══ EMERGÊNCIA ═══ -->
   <div class="page" id="pg-emergencia">
-    <div class="appbar" style="background:#fca5a5;color:#7f1d1d">
-      <div class="icon-btn"></div>
-      <span>Emergência</span>
-      <div class="icon-btn"></div>
-    </div>
-    <div class="emergency-content">
-      <div class="em-hint">Pressione o botão do serviço que precisa.</div>
+    <header class="appbar"><span></span><h1>Emergência</h1><span></span></header>
+    <div class="content">
+      <p class="em-hint">Toque no serviço que você precisa.</p>
 
-      <button class="em-btn" style="background:#b91c1c" onclick="ligar('192')">
-        <span class="ei">🏥</span>
-        <div class="et"><strong>SAMU</strong><small>Ambulância · 192</small></div>
-        <span class="arr">›</span>
-      </button>
-      <button class="em-btn" style="background:#1e40af" onclick="ligar('190')">
-        <span class="ei">👮</span>
-        <div class="et"><strong>POLÍCIA</strong><small>Segurança · 190</small></div>
-        <span class="arr">›</span>
-      </button>
-      <button class="em-btn" style="background:#c2410c" onclick="ligar('193')">
-        <span class="ei">🚒</span>
-        <div class="et"><strong>BOMBEIROS</strong><small>Resgate · 193</small></div>
-        <span class="arr">›</span>
-      </button>
-      <button class="em-btn" style="background:#0f766e" onclick="ligar('199')">
-        <span class="ei">🏚️</span>
-        <div class="et"><strong>DEFESA CIVIL</strong><small>Desastres e Riscos · 199</small></div>
-        <span class="arr">›</span>
-      </button>
-      <button class="em-btn" style="background:#7c3aed" onclick="ligar('188')">
-        <span class="ei">💜</span>
-        <div class="et"><strong>VALORIZAÇÃO DA VIDA</strong><small>CVV – Apoio Emocional · 188</small></div>
-        <span class="arr">›</span>
-      </button>
+      <div class="em-list">
+        <button class="em press" style="--bg:var(--red);--fg:#fff" onclick="ligar('192')">
+          <svg class="ic"><use href="#i-cross"/></svg>
+          <span class="tx"><strong>SAMU</strong><small>Ambulância</small></span><span class="num">192</span></button>
+        <button class="em press" style="--bg:var(--ink);--fg:#fff" onclick="ligar('190')">
+          <svg class="ic"><use href="#i-shield"/></svg>
+          <span class="tx"><strong>Polícia</strong><small>Segurança</small></span><span class="num">190</span></button>
+        <button class="em press" style="--bg:var(--orange)" onclick="ligar('193')">
+          <svg class="ic"><use href="#i-flame"/></svg>
+          <span class="tx"><strong>Bombeiros</strong><small>Resgate</small></span><span class="num">193</span></button>
+        <button class="em press" style="--bg:var(--yellow)" onclick="ligar('199')">
+          <svg class="ic"><use href="#i-house"/></svg>
+          <span class="tx"><strong>Defesa Civil</strong><small>Desastres e riscos</small></span><span class="num">199</span></button>
+      </div>
 
-      <hr style="margin:20px 0;border-color:#fecaca">
-      <button class="em-btn" style="background:#16a34a" onclick="whatsapp()">
-        <span class="ei">💬</span>
-        <div class="et"><strong>AVISAR RESPONSÁVEL</strong><small>Enviar alerta via WhatsApp</small></div>
-        <span class="arr">›</span>
-      </button>
+      <div class="sec" style="padding-bottom:0"><p class="lbl" style="margin-bottom:0">Canais de apoio</p></div>
+      <div class="em-list">
+        <button class="em press" style="--bg:var(--lilac)" onclick="ligar('188')">
+          <svg class="ic"><use href="#i-heart"/></svg>
+          <span class="tx"><strong>Valorização da Vida</strong><small>CVV – Apoio emocional</small></span><span class="num">188</span></button>
+        <button class="em press" style="--bg:var(--pink)" onclick="ligar('180')">
+          <svg class="ic"><use href="#i-woman"/></svg>
+          <span class="tx"><strong>Atendimento à Mulher</strong><small>Violência contra a mulher</small></span><span class="num">180</span></button>
+        <button class="em press" style="--bg:var(--teal)" onclick="ligar('100')">
+          <svg class="ic"><use href="#i-megaphone"/></svg>
+          <span class="tx"><strong>Direitos Humanos</strong><small>Crianças, idosos e outras denúncias</small></span><span class="num">100</span></button>
+      </div>
 
-      <p style="font-size:12px;color:#9ca3af;text-align:center;margin-top:16px;line-height:1.6">
-        Em caso de perigo imediato, ligue primeiro<br>antes de enviar mensagens.
-      </p>
+      <div class="sec" style="padding-bottom:0"><p class="lbl" style="margin-bottom:0">Avisar alguém</p></div>
+      <div class="em-list">
+        <button class="em press" style="--bg:var(--green)" onclick="whatsapp()">
+          <svg class="ic"><use href="#i-chat"/></svg>
+          <span class="tx"><strong>Avisar responsável</strong><small>Enviar alerta via WhatsApp</small></span>
+          <svg class="ic" style="width:22px;height:22px"><use href="#i-route"/></svg></button>
+      </div>
+
+      <p class="em-note">Em caso de perigo imediato, ligue primeiro<br>antes de enviar mensagens.</p>
     </div>
   </div>
 
-  <!-- ═══ MAPA ════════════════════════════════════════════════════════════ -->
+  <!-- ═══ MAPA ═══ -->
   <div class="page" id="pg-mapa">
-    <div class="appbar">
-      <div class="icon-btn"></div>
-      <span>Mapa de Segurança</span>
-      <div class="icon-btn" title="Recarregar" onclick="recarregarMapa()" style="font-size:18px;cursor:pointer">🔄</div>
-    </div>
+    <header class="appbar">
+      <span></span><h1>Mapa de serviços</h1>
+      <button class="icon-btn" title="Recarregar" aria-label="Recarregar mapa" onclick="recarregarMapa()"><svg class="ic"><use href="#i-refresh"/></svg></button>
+    </header>
+
+    <form class="map-search" onsubmit="buscarEndereco(event)">
+      <input type="search" id="inp-busca" placeholder="Buscar bairro, rua ou cidade" aria-label="Buscar bairro, rua ou cidade" autocomplete="off">
+      <button type="submit" aria-label="Buscar"><svg class="ic"><use href="#i-search"/></svg></button>
+    </form>
 
     <div class="map-filters">
-      <button class="filter-chip active" data-q="todos"    onclick="filtrarMapa(this)">🗺️ Todos</button>
-      <button class="filter-chip" data-q="hospital"        onclick="filtrarMapa(this)">🏥 Hospitais</button>
-      <button class="filter-chip" data-q="upa"             onclick="filtrarMapa(this)">🚑 UPA</button>
-      <button class="filter-chip" data-q="clinic"          onclick="filtrarMapa(this)">🩺 Clínicas</button>
-      <button class="filter-chip" data-q="pharmacy"        onclick="filtrarMapa(this)">💊 Farmácias</button>
-      <button class="filter-chip" data-q="police"          onclick="filtrarMapa(this)">👮 Delegacias</button>
+      <button class="filter-chip active" data-q="todos"    onclick="filtrarMapa(this)"><svg class="ic"><use href="#i-map"/></svg>Todos</button>
+      <button class="filter-chip" data-q="hospital" onclick="filtrarMapa(this)"><svg class="ic"><use href="#i-cross"/></svg>Hospitais</button>
+      <button class="filter-chip" data-q="upa"      onclick="filtrarMapa(this)"><svg class="ic"><use href="#i-siren"/></svg>UPA</button>
+      <button class="filter-chip" data-q="clinic"   onclick="filtrarMapa(this)"><svg class="ic"><use href="#i-pulse"/></svg>Clínicas</button>
+      <button class="filter-chip" data-q="pharmacy" onclick="filtrarMapa(this)"><svg class="ic"><use href="#i-pill"/></svg>Farmácias</button>
+      <button class="filter-chip" data-q="police"   onclick="filtrarMapa(this)"><svg class="ic"><use href="#i-shield"/></svg>Delegacias</button>
+      <button class="filter-chip" data-q="fire"     onclick="filtrarMapa(this)"><svg class="ic"><use href="#i-flame"/></svg>Bombeiros</button>
     </div>
 
-    <div id="map-loading" style="
-      display:flex;flex-direction:column;align-items:center;
-      justify-content:center;gap:14px;flex:1;
-      color:#6b7280;font-size:14px;background:#f0f4ff;padding:24px;text-align:center">
-      <div id="map-spinner" style="width:40px;height:40px;border:4px solid #dbeafe;
-                  border-top-color:#1d4ed8;border-radius:50%;animation:spin 1s linear infinite"></div>
-      <span id="map-loading-msg">Obtendo sua localização...</span>
+    <div class="map-area">
+      <div id="leaflet-map"></div>
+      <div class="map-status" id="map-status" role="status"></div>
+      <button class="fab" title="Minha localização" aria-label="Ir para minha localização" onclick="localizar()"><svg class="ic"><use href="#i-target"/></svg></button>
 
-      <!-- Card permissão negada -->
-      <div id="map-permission-card" style="display:none;background:#fff;border-radius:16px;
-           padding:20px;max-width:320px;box-shadow:0 2px 12px rgba(0,0,0,.1)">
-        <div style="font-size:36px;margin-bottom:8px">📍</div>
-        <p style="font-weight:700;color:#1d4ed8;font-size:15px;margin-bottom:8px">
-          Permitir acesso à localização
-        </p>
-        <p style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:16px">
-          O navegador bloqueou o GPS. Para ver locais próximos a você, siga os passos:
-        </p>
-        <ol style="text-align:left;font-size:13px;color:#374151;line-height:1.8;margin-bottom:16px;padding-left:20px">
-          <li>Clique no <strong>🔒 cadeado</strong> na barra de endereço</li>
-          <li>Vá em <strong>Permissões do site</strong></li>
-          <li>Defina <strong>Localização</strong> como <em>Permitir</em></li>
-          <li>Recarregue a página</li>
-        </ol>
-        <button onclick="tentarLocalizacaoNovamente()" style="
-          width:100%;padding:12px;border:none;border-radius:10px;
-          background:#1d4ed8;color:#fff;font-size:14px;font-weight:600;
-          font-family:inherit;cursor:pointer">
-          🔄 Tentar novamente
-        </button>
-        <button onclick="_usarLocalizacaoPadrao()" style="
-          width:100%;padding:10px;border:1.5px solid #d1d5db;border-radius:10px;
-          background:#fff;color:#6b7280;font-size:13px;margin-top:8px;
-          font-family:inherit;cursor:pointer">
-          Continuar sem localização real
-        </button>
+      <div class="map-overlay show" id="map-overlay">
+        <div class="spinner" id="map-spinner"></div>
+        <span id="map-loading-msg">Obtendo sua localização…</span>
+
+        <div class="sticker perm-card" id="map-card">
+          <svg class="ic"><use href="#i-pin"/></svg>
+          <h2 id="map-card-title"></h2>
+          <p id="map-card-text"></p>
+          <ol id="map-card-steps"></ol>
+          <!-- data-em: em quais situações cada botão aparece -->
+          <div class="perm-actions">
+            <button class="btn primary press" data-em="quadro" onclick="abrirNovaAba()">Abrir o EVA em nova aba</button>
+            <button class="btn primary press" data-em="negada esperando falha semmapa" onclick="localizar()">Tentar novamente</button>
+            <button class="btn press" data-em="negada quadro esperando falha" onclick="focarBusca()">Buscar meu bairro ou cidade</button>
+            <button class="btn press" data-em="negada quadro esperando falha" onclick="fecharCartao()">Ver o mapa mesmo assim</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aviso discreto quando a localização é só aproximada -->
+      <div class="map-note" id="map-note" role="status">
+        <span id="map-note-txt"></span>
+        <button class="map-note-go" onclick="localizar()">Tentar GPS</button>
+        <button class="map-note-x" aria-label="Fechar aviso" onclick="esconderNota()"><svg class="ic"><use href="#i-x"/></svg></button>
       </div>
     </div>
+
+    <div class="near" id="near"></div>
   </div>
 
-  <!-- ═══ GUIA ════════════════════════════════════════════════════════════ -->
+  <!-- ═══ GUIA ═══ -->
   <div class="page" id="pg-guia">
-    <div class="appbar">
-      <div class="icon-btn"></div>
-      <span>Guia de Segurança</span>
-      <div class="icon-btn"></div>
-    </div>
-    <div class="guide-content">
+    <header class="appbar"><span></span><h1>Guia de segurança</h1><span></span></header>
+    <div class="content guide-content">
+
+      <details open>
+        <summary>
+          <span class="sum-icon" style="--bg:var(--yellow)"><svg class="ic"><use href="#i-phone"/></svg></span>
+          Para quem ligar?
+          <span class="sum-arr"><svg class="ic"><use href="#i-chev"/></svg></span>
+        </summary>
+        <div class="tip"><span class="tip-step">192 SAMU</span><span class="tip-desc">Mal súbito, desmaio, dor forte no peito, acidente com feridos.</span></div>
+        <div class="tip"><span class="tip-step">193 Bombeiros</span><span class="tip-desc">Incêndio, afogamento, pessoa presa ou em local de risco, resgates.</span></div>
+        <div class="tip"><span class="tip-step">190 Polícia</span><span class="tip-desc">Crime acontecendo, ameaça, violência, pessoa em perigo.</span></div>
+        <div class="tip"><span class="tip-step">199 Defesa Civil</span><span class="tip-desc">Alagamento, deslizamento, risco de desabamento, árvore caindo.</span></div>
+        <div class="tip"><span class="tip-step">188 CVV</span><span class="tip-desc">Apoio emocional, gratuito e sigiloso, 24 horas por dia.</span></div>
+        <div class="tip"><span class="tip-step">180 Mulher</span><span class="tip-desc">Violência contra a mulher: orientação e denúncia.</span></div>
+        <div class="tip"><span class="tip-step">100 Direitos</span><span class="tip-desc">Violência contra crianças, adolescentes, idosos e pessoas com deficiência.</span></div>
+      </details>
 
       <details>
         <summary>
-          <div class="sum-icon" style="background:#fee2e2">🏥</div>
+          <span class="sum-icon" style="--bg:var(--red-soft)"><svg class="ic"><use href="#i-cross"/></svg></span>
           Primeiros Socorros
-          <span class="sum-arr">⌄</span>
+          <span class="sum-arr"><svg class="ic"><use href="#i-chev"/></svg></span>
         </summary>
         <div class="tip"><span class="tip-step">1. Proteja a cena</span><span class="tip-desc">Verifique se o local é seguro antes de se aproximar da vítima.</span></div>
         <div class="tip"><span class="tip-step">2. Chame ajuda</span><span class="tip-desc">Ligue 192 (SAMU) ou 193 (Bombeiros) imediatamente.</span></div>
@@ -472,9 +619,9 @@
 
       <details>
         <summary>
-          <div class="sum-icon" style="background:#e0e7ff">🔒</div>
+          <span class="sum-icon" style="--bg:var(--lilac)"><svg class="ic"><use href="#i-lock"/></svg></span>
           Segurança Online
-          <span class="sum-arr">⌄</span>
+          <span class="sum-arr"><svg class="ic"><use href="#i-chev"/></svg></span>
         </summary>
         <div class="tip"><span class="tip-step">Senhas</span><span class="tip-desc">Use letras, números e símbolos. Nunca repita a mesma senha em sites diferentes.</span></div>
         <div class="tip"><span class="tip-step">Phishing</span><span class="tip-desc">Desconfie de e-mails pedindo senha ou dados bancários. Bancos nunca pedem isso.</span></div>
@@ -485,9 +632,9 @@
 
       <details>
         <summary>
-          <div class="sum-icon" style="background:#ccfbf1">🏫</div>
+          <span class="sum-icon" style="--bg:var(--teal)"><svg class="ic"><use href="#i-school"/></svg></span>
           Situações de Risco Escolar
-          <span class="sum-arr">⌄</span>
+          <span class="sum-arr"><svg class="ic"><use href="#i-chev"/></svg></span>
         </summary>
         <div class="tip"><span class="tip-step">Incêndio</span><span class="tip-desc">Acione o alarme. Não use elevador. Saia agachado (fumaça sobe). Ponto de encontro externo.</span></div>
         <div class="tip"><span class="tip-step">Pessoa estranha</span><span class="tip-desc">Não abra portões. Avise imediatamente a coordenação ou um professor.</span></div>
@@ -498,196 +645,199 @@
     </div>
   </div>
 
-  <!-- ═══ PERFIL ══════════════════════════════════════════════════════════ -->
+  <!-- ═══ PERFIL ═══ -->
   <div class="page" id="pg-perfil">
-    <div class="appbar">
-      <div class="icon-btn">&#9776;</div>
-      <span>Meu Perfil</span>
-      <div class="icon-btn" title="Sair">⎋</div>
-    </div>
+    <header class="appbar"><span></span><h1>Meu perfil</h1><span></span></header>
     <div class="content" id="content-perfil">
 
       <div class="avatar-section">
-        <div class="avatar-wrap" onclick="pickPhoto()">
-          <div class="avatar" id="avatar-display">👤</div>
-          <div class="avatar-cam">📷</div>
-        </div>
+        <button class="avatar-wrap" onclick="pickPhoto()" aria-label="Alterar foto">
+          <span class="avatar" id="avatar-display"><svg class="ic"><use href="#i-user"/></svg></span>
+          <span class="avatar-cam"><svg class="ic"><use href="#i-cam"/></svg></span>
+        </button>
         <div class="avatar-hint">Toque para alterar a foto</div>
-        <div class="user-email">aluno@escola.edu.br</div>
+        <div class="user-note">Seus dados ficam salvos só neste aparelho.</div>
         <input type="file" id="file-input" accept="image/*" style="display:none" onchange="previewPhoto(event)">
       </div>
 
-      <div class="section-label">Dados Pessoais</div>
+      <div class="form">
+        <p class="lbl">Dados pessoais</p>
 
-      <div class="field">
-        <label>Nome completo</label>
-        <div class="field-row">
-          <span class="fi">👤</span>
-          <input type="text" id="inp-nome" placeholder="Ex: Maria da Silva">
+        <div class="field">
+          <label for="inp-nome">Nome completo</label>
+          <div class="field-row"><svg class="ic"><use href="#i-user"/></svg>
+            <input type="text" id="inp-nome" placeholder="Ex: Maria da Silva" autocomplete="name"></div>
         </div>
-      </div>
-      <div class="field">
-        <label>Tipo sanguíneo</label>
-        <div class="field-row">
-          <span class="fi">🩸</span>
-          <select id="inp-sangue">
-            <option value="">Selecione</option>
-            <option>A+</option><option>A-</option>
-            <option>B+</option><option>B-</option>
-            <option>AB+</option><option>AB-</option>
-            <option>O+</option><option>O-</option>
-          </select>
+        <div class="field">
+          <label for="inp-sangue">Tipo sanguíneo</label>
+          <div class="field-row"><svg class="ic"><use href="#i-drop"/></svg>
+            <select id="inp-sangue">
+              <option value="">Selecione</option>
+              <option>A+</option><option>A-</option>
+              <option>B+</option><option>B-</option>
+              <option>AB+</option><option>AB-</option>
+              <option>O+</option><option>O-</option>
+            </select></div>
         </div>
-      </div>
-      <div class="field">
-        <label>Alergias</label>
-        <div class="field-row">
-          <span class="fi">⚠️</span>
-          <textarea id="inp-alergias" placeholder="Ex: Penicilina, Amendoim  •  ou  •  Nenhuma"></textarea>
+        <div class="field">
+          <label for="inp-alergias">Alergias</label>
+          <div class="field-row"><svg class="ic"><use href="#i-warn"/></svg>
+            <textarea id="inp-alergias" placeholder="Ex: Penicilina, amendoim — ou Nenhuma"></textarea></div>
         </div>
-      </div>
-      <div class="field">
-        <label>Comorbidades</label>
-        <div class="field-row">
-          <span class="fi">🏥</span>
-          <textarea id="inp-comorbidades" placeholder="Ex: Diabetes, Hipertensão  •  ou  •  Nenhuma"></textarea>
+        <div class="field">
+          <label for="inp-comorbidades">Comorbidades</label>
+          <div class="field-row"><svg class="ic"><use href="#i-pulse"/></svg>
+            <textarea id="inp-comorbidades" placeholder="Ex: Diabetes, hipertensão — ou Nenhuma"></textarea></div>
         </div>
-      </div>
-      <div class="field">
-        <label>Endereço</label>
-        <div class="field-row">
-          <span class="fi">🏠</span>
-          <input type="text" id="inp-endereco" placeholder="Rua, número, bairro, cidade">
+        <div class="field">
+          <label for="inp-endereco">Endereço</label>
+          <div class="field-row"><svg class="ic"><use href="#i-home"/></svg>
+            <input type="text" id="inp-endereco" placeholder="Rua, número, bairro, cidade" autocomplete="street-address"></div>
         </div>
-      </div>
 
-      <div class="section-label">Condições Especiais</div>
-      <div class="field">
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <label id="chip-pcd" onclick="toggleChip('pcd')"
-                 style="display:flex;align-items:center;gap:8px;background:#f0f4ff;
-                        border-radius:20px;padding:8px 16px;cursor:pointer;
-                        border:2px solid transparent;transition:.15s">
-            <input type="checkbox" id="check-pcd" style="display:none">
-            <span>♿</span><span style="font-size:13px;font-weight:500">PCD</span>
-          </label>
-          <label id="chip-neuro" onclick="toggleChip('neuro')"
-                 style="display:flex;align-items:center;gap:8px;background:#f0f4ff;
-                        border-radius:20px;padding:8px 16px;cursor:pointer;
-                        border:2px solid transparent;transition:.15s">
-            <input type="checkbox" id="check-neuro" style="display:none">
-            <span>🧠</span><span style="font-size:13px;font-weight:500">Neurodivergente</span>
-          </label>
+        <p class="lbl">Condições especiais</p>
+        <div class="chips">
+          <button type="button" class="chip press" id="chip-pcd" aria-pressed="false" onclick="toggleChip('pcd')">
+            <svg class="ic"><use href="#i-wheel"/></svg>PCD</button>
+          <button type="button" class="chip press" id="chip-neuro" aria-pressed="false" onclick="toggleChip('neuro')">
+            <svg class="ic"><use href="#i-brain"/></svg>Neurodivergente</button>
         </div>
-      </div>
 
-      <div class="section-label">Contato de Emergência</div>
-      <div class="field">
-        <label>WhatsApp do responsável</label>
-        <div class="field-row">
-          <span class="fi">📱</span>
-          <input type="tel" id="inp-whatsapp" placeholder="(11) 99999-9999">
+        <p class="lbl">Contato de emergência</p>
+        <div class="field">
+          <label for="inp-whatsapp">WhatsApp do responsável</label>
+          <div class="field-row"><svg class="ic"><use href="#i-phone"/></svg>
+            <input type="tel" id="inp-whatsapp" placeholder="(81) 99999-9999" autocomplete="tel"></div>
         </div>
-      </div>
 
-      <button class="btn-save" onclick="salvar()">
-        <span id="btn-icon">💾</span>
-        <span id="btn-label">Salvar Perfil</span>
-      </button>
+        <button class="btn-save press" onclick="salvar()">
+          <svg class="ic"><use href="#i-check"/></svg>
+          <span id="btn-label">Salvar perfil</span>
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- ═══ Bottom Nav ══════════════════════════════════════════════════════ -->
-  <nav class="bottom-nav">
-    <a class="nav-item active" onclick="goTo('home')"       id="nav-home">      <span class="ni">🏠</span> Início</a>
-    <a class="nav-item"        onclick="goTo('emergencia')" id="nav-emergencia"><span class="ni">🚨</span> Emergência</a>
-    <a class="nav-item"        onclick="goTo('mapa')"       id="nav-mapa">      <span class="ni">📍</span> Mapa</a>
-    <a class="nav-item"        onclick="goTo('guia')"       id="nav-guia">      <span class="ni">📚</span> Guia</a>
-    <a class="nav-item"        onclick="goTo('perfil')"     id="nav-perfil">    <span class="ni">👤</span> Perfil</a>
+  <!-- ═══ Bottom Nav ═══ -->
+  <nav class="bottom-nav" aria-label="Navegação principal">
+    <button class="nav-item active" onclick="goTo('home')"       id="nav-home"><svg class="ic"><use href="#i-home"/></svg>Início</button>
+    <button class="nav-item"        onclick="goTo('emergencia')" id="nav-emergencia"><svg class="ic"><use href="#i-siren"/></svg>Emergência</button>
+    <button class="nav-item"        onclick="goTo('mapa')"       id="nav-mapa"><svg class="ic"><use href="#i-pin"/></svg>Mapa</button>
+    <button class="nav-item"        onclick="goTo('guia')"       id="nav-guia"><svg class="ic"><use href="#i-book"/></svg>Guia</button>
+    <button class="nav-item"        onclick="goTo('perfil')"     id="nav-perfil"><svg class="ic"><use href="#i-user"/></svg>Perfil</button>
   </nav>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status"></div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Se o unpkg falhar, carrega o Leaflet de outro CDN -->
+<script>window.L || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"><\/script>')</script>
 <script>
+  // ── Utilidades ────────────────────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+  const ic = (name) => `<svg class="ic"><use href="#i-${name}"/></svg>`;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function lerPerfil() {
+    try { return JSON.parse(localStorage.getItem('eva_perfil') || 'null') || {}; } catch (_) { return {}; }
+  }
+
+  let _toastTimer;
+  function showToast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
   // ── Navegação ─────────────────────────────────────────────────────────
   function goTo(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('pg-' + page).classList.add('active');
-    document.getElementById('nav-' + page).classList.add('active');
+    $('pg-' + page).classList.add('active');
+    $('nav-' + page).classList.add('active');
 
-    if (page === 'mapa' && !_mapaIniciado) {
-      _mapaIniciado = true;
-      _iniciarGeolocalizacao();
-    }
-    if (page === 'mapa' && _leafletReady && _leafletMap) {
-      setTimeout(() => _leafletMap.invalidateSize(), 50);
+    if (page === 'mapa') {
+      if (!_mapa) iniciarMapa();
+      else setTimeout(() => _mapa.invalidateSize(), 60);
     }
   }
 
   // ── Perfil ────────────────────────────────────────────────────────────
-  function pickPhoto() { document.getElementById('file-input').click(); }
+  let _foto = '';
+  function pickPhoto() { $('file-input').click(); }
 
+  function mostrarFoto(src) {
+    const img = new Image();
+    img.alt = 'Foto do perfil';
+    img.src = src;
+    $('avatar-display').replaceChildren(img);
+  }
+
+  // Reduz a foto para caber no armazenamento do aparelho
   function previewPhoto(e) {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = ev => {
-      const av = document.getElementById('avatar-display');
-      av.innerHTML = `<img src="${ev.target.result}" alt="foto">`;
+      const img = new Image();
+      img.onload = () => {
+        const lado = 256, c = document.createElement('canvas');
+        c.width = c.height = lado;
+        const m = Math.min(img.width, img.height);
+        c.getContext('2d').drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, lado, lado);
+        _foto = c.toDataURL('image/jpeg', 0.82);
+        mostrarFoto(_foto);
+      };
+      img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
   }
 
   function salvar() {
     const btn = document.querySelector('.btn-save');
-    document.getElementById('btn-icon').textContent = '⏳';
-    document.getElementById('btn-label').textContent = 'Salvando...';
     btn.disabled = true;
-    // Salva no localStorage para persistir
-    localStorage.setItem('eva_perfil', JSON.stringify({
-      nome:         document.getElementById('inp-nome').value,
-      sangue:       document.getElementById('inp-sangue').value,
-      alergias:     document.getElementById('inp-alergias').value,
-      comorbidades: document.getElementById('inp-comorbidades').value,
-      endereco:     document.getElementById('inp-endereco').value,
-      whatsapp:     document.getElementById('inp-whatsapp').value,
-      pcd:          document.getElementById('check-pcd').checked,
-      neuro:        document.getElementById('check-neuro').checked,
-    }));
+    $('btn-label').textContent = 'Salvando...';
+    let ok = true;
+    try {
+      localStorage.setItem('eva_perfil', JSON.stringify({
+        nome:         $('inp-nome').value,
+        sangue:       $('inp-sangue').value,
+        alergias:     $('inp-alergias').value,
+        comorbidades: $('inp-comorbidades').value,
+        endereco:     $('inp-endereco').value,
+        whatsapp:     $('inp-whatsapp').value,
+        pcd:          $('chip-pcd').getAttribute('aria-pressed') === 'true',
+        neuro:        $('chip-neuro').getAttribute('aria-pressed') === 'true',
+        foto:         _foto,
+      }));
+    } catch (_) { ok = false; }
     setTimeout(() => {
-      document.getElementById('btn-icon').textContent = '✅';
-      document.getElementById('btn-label').textContent = 'Perfil Salvo!';
       btn.disabled = false;
-      showToast('Perfil salvo com sucesso!');
-    }, 800);
+      $('btn-label').textContent = ok ? 'Perfil salvo!' : 'Salvar perfil';
+      showToast(ok ? 'Perfil salvo com sucesso!' : 'Não foi possível salvar neste navegador.');
+      if (ok) setTimeout(() => { $('btn-label').textContent = 'Salvar perfil'; }, 2500);
+    }, 500);
   }
 
   function toggleChip(id) {
-    const chip  = document.getElementById('chip-' + id);
-    const check = document.getElementById('check-' + id);
-    const ativo = check.checked = !check.checked;
-    chip.style.background   = ativo ? '#dbeafe' : '#f0f4ff';
-    chip.style.borderColor  = ativo ? '#1d4ed8' : 'transparent';
+    const chip = $('chip-' + id);
+    chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true'));
   }
 
-  // Carrega perfil salvo ao iniciar
   (function carregarPerfil() {
-    const d = JSON.parse(localStorage.getItem('eva_perfil') || 'null');
-    if (!d) return;
-    document.getElementById('inp-nome').value         = d.nome || '';
-    document.getElementById('inp-sangue').value       = d.sangue || '';
-    document.getElementById('inp-alergias').value     = d.alergias || '';
-    document.getElementById('inp-comorbidades').value = d.comorbidades || '';
-    document.getElementById('inp-endereco').value     = d.endereco || '';
-    document.getElementById('inp-whatsapp').value     = d.whatsapp || '';
-    if (d.pcd)   { document.getElementById('check-pcd').checked = true;
-                   document.getElementById('chip-pcd').style.background = '#dbeafe';
-                   document.getElementById('chip-pcd').style.borderColor = '#1d4ed8'; }
-    if (d.neuro) { document.getElementById('check-neuro').checked = true;
-                   document.getElementById('chip-neuro').style.background = '#dbeafe';
-                   document.getElementById('chip-neuro').style.borderColor = '#1d4ed8'; }
+    const d = lerPerfil();
+    $('inp-nome').value         = d.nome || '';
+    $('inp-sangue').value       = d.sangue || '';
+    $('inp-alergias').value     = d.alergias || '';
+    $('inp-comorbidades').value = d.comorbidades || '';
+    $('inp-endereco').value     = d.endereco || '';
+    $('inp-whatsapp').value     = d.whatsapp || '';
+    if (d.pcd)   $('chip-pcd').setAttribute('aria-pressed', 'true');
+    if (d.neuro) $('chip-neuro').setAttribute('aria-pressed', 'true');
+    if (d.foto)  { _foto = d.foto; mostrarFoto(_foto); }
   })();
 
   // ── Emergência ────────────────────────────────────────────────────────
@@ -697,207 +847,605 @@
   }
 
   function whatsapp() {
-    const d = JSON.parse(localStorage.getItem('eva_perfil') || '{}');
-    const nome = d.nome || 'aluno(a)';
-    const tel  = (d.whatsapp || '').replace(/\D/g,'');
-    const msg  = encodeURIComponent(`Olá! Sou responsável pelo app EVA. ${nome} está com uma emergência. Por favor entre em contato!`);
-    const num  = tel.length >= 10 ? tel : '5511991234567';
-    window.open(`https://wa.me/55${num}?text=${msg}`, '_blank');
+    const d = lerPerfil();
+    let tel = (d.whatsapp || '').replace(/\D/g, '').replace(/^0+/, '');
+    if (tel.length < 10) {
+      showToast('Cadastre o WhatsApp do responsável no Perfil.');
+      goTo('perfil');
+      setTimeout(() => $('inp-whatsapp').focus(), 100);
+      return;
+    }
+    // Aceita número com ou sem o código do Brasil (55)
+    if (!(tel.startsWith('55') && tel.length >= 12)) tel = '55' + tel;
+    let texto = `🚨 Alerta EVA: ${d.nome || 'uma pessoa sob sua responsabilidade'} está em uma emergência e precisa de ajuda. Por favor, entre em contato agora!`;
+    if (_pos && _posReal) texto += `\nLocalização: https://www.google.com/maps?q=${_pos.lat.toFixed(5)},${_pos.lng.toFixed(5)}`;
+    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener');
   }
 
   // ── Mapa ──────────────────────────────────────────────────────────────
-  let _lat = null, _lng = null;
-  let _mapaIniciado = false;
-  let _filtroAtivo  = 'todos';
-  let _leafletMap   = null, _userMarker = null, _allMarkers = [];
-  let _leafletReady = false;
+  // Local mostrado quando não há GPS nem busca (ajuste para a cidade do projeto-piloto)
+  const LOCAL_PADRAO = { lat: -8.0631, lng: -34.8711, nome: 'Recife (centro)' };
+
+  // Servidores Overpass: se um estiver fora do ar ou lotado, tenta o próximo
+  const OVERPASS = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.private.coffee/api/interpreter',
+    'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+  ];
+  const RAIOS = [5000, 15000];                      // metros; amplia se não houver nada por perto
+  const CACHE_VALIDADE = 7 * 24 * 3600 * 1000;      // resultados guardados no aparelho por 7 dias
 
   const PLACE_TYPES = {
-    hospital: { color: '#dc2626', emoji: '🏥', label: 'Hospital' },
-    upa:      { color: '#ea580c', emoji: '🚑', label: 'UPA / Pronto-Socorro' },
-    clinic:   { color: '#7c3aed', emoji: '🩺', label: 'Clínica' },
-    pharmacy: { color: '#16a34a', emoji: '💊', label: 'Farmácia' },
-    police:   { color: '#1d4ed8', emoji: '👮', label: 'Delegacia' },
+    hospital: { bg: '#D62B2E', fg: '#fff',    icon: 'cross',  label: 'Hospital' },
+    upa:      { bg: '#FF8A2A', fg: '#14263D', icon: 'siren',  label: 'UPA / Pronto-socorro' },
+    clinic:   { bg: '#C8B8F4', fg: '#14263D', icon: 'pulse',  label: 'Clínica / Posto de saúde' },
+    pharmacy: { bg: '#35C46B', fg: '#14263D', icon: 'pill',   label: 'Farmácia' },
+    police:   { bg: '#7CC4F2', fg: '#14263D', icon: 'shield', label: 'Delegacia / Polícia' },
+    fire:     { bg: '#FFC531', fg: '#14263D', icon: 'flame',  label: 'Bombeiros' },
   };
+  const MAX_MARCADORES = 250;   // os mais próximos; evita travar em bairros com muitas farmácias
+  const MAX_LISTA = 12;
+
+  // Serviços que estimam a cidade pelo endereço de internet (IP), sem GPS e sem pedir permissão.
+  // Plano B quando o aparelho não entrega a localização (GPS desligado, sinal fraco, site sem https).
+  const IP_GEO = [
+    ['https://get.geojs.io/v1/ip/geo.json', d => [d.latitude, d.longitude, d.city]],
+    ['https://ipwho.is/',                    d => d.success !== false && [d.latitude, d.longitude, d.city]],
+    ['https://ipapi.co/json/',               d => [d.latitude, d.longitude, d.city]],
+  ];
+
+  // Cartão de ajuda: [título, texto padrão]
+  const CARTOES = {
+    negada:    ['Permita o acesso à localização', 'O navegador bloqueou a localização deste site. Para ver os serviços perto de você:'],
+    quadro:    ['Abra o EVA em uma nova aba', 'O EVA está aberto dentro de outra página, que não deixa usar a sua localização.'],
+    esperando: ['Está demorando para achar você', 'Se o navegador perguntou sobre a localização, toque em Permitir. Ou escolha uma opção abaixo.'],
+    falha:     ['Não achamos sua localização', 'Ligue a localização do aparelho e tente de novo, ou busque seu bairro.'],
+    semmapa:   ['O mapa não carregou', 'Verifique sua conexão com a internet e tente novamente.'],
+  };
+  // Por que o aparelho não entregou a localização: [aviso curto, texto do cartão se nem a região for encontrada]
+  const MOTIVOS = {
+    desligado: ['A localização do aparelho parece desligada.', 'A localização do aparelho parece desligada. Ative-a nas configurações do celular (ou do computador) e tente de novo, ou busque seu bairro.'],
+    demorou:   ['O GPS não respondeu a tempo.', 'O sinal do GPS está fraco. Tente perto de uma janela ou ao ar livre, ou busque seu bairro.'],
+    lento:     ['O GPS está demorando.', 'O GPS está demorando. Aguarde mais um pouco ou busque seu bairro.'],
+    inseguro:  ['A localização só funciona com o site em https://.', 'A localização só funciona com o site aberto em https://. Busque seu bairro ou cidade.'],
+    suporte:   ['Este navegador não oferece localização.', 'Este navegador não oferece localização. Busque seu bairro ou cidade.'],
+  };
+  // Passo a passo para liberar a localização (iPhone/iPad e demais navegadores)
+  const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const PASSOS = IOS ? [
+    'Toque em <strong>aA</strong>, à esquerda do endereço do site',
+    'Abra <strong>Ajustes do Site</strong> e, em <strong>Localização</strong>, escolha <em>Permitir</em>',
+    'Se não resolver: Ajustes do iPhone › Privacidade e Segurança › <strong>Serviços de Localização</strong> › Sites do Safari › <em>Durante o Uso</em>',
+    'Volte aqui e toque em <strong>Tentar novamente</strong>',
+  ] : [
+    'Toque no ícone à esquerda do endereço do site (<strong>cadeado</strong> ou <strong>ajustes</strong>)',
+    'Abra <strong>Permissões</strong> ou <strong>Configurações do site</strong>',
+    'Em <strong>Localização</strong>, escolha <em>Permitir</em>',
+    'Volte aqui e toque em <strong>Tentar novamente</strong>',
+  ];
+  $('map-card-steps').innerHTML = PASSOS.map(p => `<li>${p}</li>`).join('');
+
+  let _mapa = null, _camada = null, _marcadorEu = null, _circulo = null, _iniciando = null;
+  let _filtroAtivo = 'todos';
+  let _pos = null, _posReal = false, _rotuloPos = '', _posAuto = false, _precisao = 0, _mapaMexido = false;
+  let _locais = [], _buscaId = 0, _statusTimer;
+  let _locId = 0, _locTimer, _gpsTimer, _watchId = null, _motivo = '', _permEstado = '', _permVigiada = false;
+  let _regiaoIP = null, _saiuEm = 0;
+
+  // Carrega o Leaflet de novo se o <script> do início falhou (internet instável)
+  function carregarLeaflet() {
+    const fontes = ['https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'];
+    return fontes.reduce((antes, src) => antes.then(ok => ok || new Promise(fim => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = () => fim(!!window.L);
+      s.onerror = () => { s.remove(); fim(false); };
+      document.head.appendChild(s);
+    })), Promise.resolve(!!window.L));
+  }
+
+  function iniciarMapa() {
+    if (_mapa || _iniciando) return;
+    _iniciando = (async () => {
+      if (!window.L) {
+        mostrarCarregando('Carregando o mapa…');
+        if (!(await carregarLeaflet())) { mostrarCartao('semmapa'); return; }
+      }
+      _mapa = L.map('leaflet-map', { zoomControl: false }).setView([LOCAL_PADRAO.lat, LOCAL_PADRAO.lng], 13);
+      L.control.zoom({ position: 'bottomright' }).addTo(_mapa);
+      // Fundo do mapa: OpenStreetMap; se os blocos falharem (bloqueio, limite de uso), troca para o CARTO
+      const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(_mapa);
+      let errosTile = 0;
+      osm.on('tileerror', () => {
+        if (++errosTile !== 6) return;
+        _mapa.removeLayer(osm);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+          { attribution: '© OpenStreetMap © CARTO', subdomains: 'abcd', maxZoom: 20 }).addTo(_mapa);
+      });
+      _camada = L.layerGroup().addTo(_mapa);
+      // Se a pessoa arrastou o mapa, o GPS não deve puxá-lo de volta
+      _mapa.on('dragstart', () => { _mapaMexido = true; });
+      // Mantém o mapa do tamanho certo quando a tela muda (lista abre, teclado, girar o celular)
+      if (window.ResizeObserver) new ResizeObserver(() => _mapa.invalidateSize()).observe($('leaflet-map'));
+      localizar();
+    })().finally(() => { _iniciando = null; });
+  }
+
+  function recarregarMapa() {
+    if (!_mapa) { iniciarMapa(); return; }
+    if (_pos && !_posReal && !_posAuto) buscarLocais(); else localizar();
+  }
+
+  // — Estados da sobreposição (carregando / cartão de ajuda) e do aviso —
+  function mostrarCarregando(msg) {
+    $('pg-mapa').classList.remove('com-cartao');
+    $('map-overlay').classList.remove('card-mode');
+    $('map-overlay').classList.add('show');
+    $('map-spinner').style.display = 'block';
+    $('map-loading-msg').textContent = msg;
+    $('map-card').style.display = 'none';
+  }
+  function esconderOverlay() {
+    $('pg-mapa').classList.remove('com-cartao');
+    $('map-overlay').classList.remove('show', 'card-mode');
+  }
+
+  function mostrarCartao(tipo, texto) {
+    const [titulo, padrao] = CARTOES[tipo];
+    $('pg-mapa').classList.add('com-cartao');
+    $('map-overlay').classList.add('show', 'card-mode');
+    $('map-spinner').style.display = 'none';
+    $('map-loading-msg').textContent = '';
+    $('map-card-title').textContent = titulo;
+    $('map-card-text').textContent = texto || padrao;
+    $('map-card-steps').style.display = tipo === 'negada' ? 'block' : 'none';
+    document.querySelectorAll('#map-card [data-em]').forEach(b => { b.hidden = !b.dataset.em.split(' ').includes(tipo); });
+    $('map-card').style.display = 'block';
+  }
+
+  function fecharCartao() {
+    esconderOverlay();
+    if (!_pos) definirPosicao(LOCAL_PADRAO.lat, LOCAL_PADRAO.lng, { auto: true, rotulo: LOCAL_PADRAO.nome });
+    if (!_posReal) showToast('Mostrando ' + _rotuloPos + '. Busque seu bairro para ajustar.');
+  }
+
+  function mostrarNota(txt) { $('map-note-txt').textContent = txt; $('map-note').classList.add('show'); }
+  function esconderNota() { $('map-note').classList.remove('show'); }
+
+  function abrirNovaAba() { window.open(location.href, '_blank', 'noopener'); }
+  function focarBusca() { $('inp-busca').focus(); }
+
+  // — Localização: rede (rápida) e GPS (preciso) ao mesmo tempo → região pelo IP → cartão de ajuda —
+  async function localizar() {
+    if (!_mapa) { iniciarMapa(); return; }
+    cancelarLocalizacao();                       // respostas de pedidos antigos são ignoradas
+    const id = _locId;
+    esconderNota();
+    mostrarCarregando('Obtendo sua localização…');
+
+    if (!('geolocation' in navigator)) { semGPS(id, 'suporte'); return; }
+    if (window.isSecureContext === false) { semGPS(id, 'inseguro'); return; }
+    if (quadroBloqueia()) { semGPS(id, 'quadro'); return; }
+    try {
+      const s = navigator.permissions && await navigator.permissions.query({ name: 'geolocation' });
+      if (s) { _permEstado = s.state; vigiarPermissao(s); }
+    } catch (_) {}
+    if (id !== _locId) return;
+    if (_permEstado === 'denied') { semGPS(id, emQuadro() ? 'quadro' : 'negada'); return; }
+
+    let achou = false, desistiu = false, erros = 0;
+    const ok = p => {
+      if (id !== _locId) return;
+      const { latitude: lat, longitude: lng, accuracy: prec } = p.coords;
+      if (!achou) {
+        achou = true;
+        clearTimeout(_locTimer);
+        definirPosicao(lat, lng, { real: true, precisao: prec });
+      } else if (prec < _precisao * 0.8 || distancia(_pos, { lat, lng }) > Math.max(prec, _precisao)) {
+        refinarPosicao(lat, lng, prec);          // o GPS melhorou ou a pessoa se moveu
+      }
+      if (prec <= 30) pararGPS();                // já está precisa: economiza bateria
+    };
+    const falhou = e => {
+      if (id !== _locId || achou || desistiu) return;
+      if (e.code !== 1 && ++erros < 2) return;   // espera o outro pedido também falhar
+      desistiu = true;
+      pararGPS();
+      clearTimeout(_locTimer);
+      semGPS(id, e.code === 1 ? (emQuadro() ? 'quadro' : 'negada') : e.code === 3 ? 'demorou' : 'desligado');
+    };
+
+    // Enquanto o pedido de permissão não é respondido, o navegador não conta o tempo:
+    // sem isto a tela ficava presa em "Obtendo sua localização…" e o mapa nunca aparecia.
+    _locTimer = setTimeout(() => {
+      if (id === _locId && !achou && !desistiu) semGPS(id, _permEstado === 'granted' ? 'lento' : 'esperando');
+    }, 12000);
+    _gpsTimer = setTimeout(() => { if (id === _locId) pararGPS(); }, 60000);
+
+    // Localização pela rede/Wi-Fi: chega em segundos, mesmo dentro de casa
+    navigator.geolocation.getCurrentPosition(ok, falhou,
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 120000 });
+    // GPS: mais lento, mas preciso; vai refinando a posição enquanto o mapa está aberto
+    _watchId = navigator.geolocation.watchPosition(ok, falhou,
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 });
+  }
+
+  function pararGPS() {
+    if (_watchId !== null) { navigator.geolocation.clearWatch(_watchId); _watchId = null; }
+  }
+
+  // Cancela uma busca de localização em andamento (o usuário escolheu outro lugar)
+  function cancelarLocalizacao() {
+    _locId++; _motivo = '';
+    clearTimeout(_locTimer); clearTimeout(_gpsTimer);
+    pararGPS();
+  }
+
+  function emQuadro() { try { return window.self !== window.top; } catch (_) { return true; } }
+  // Aberto dentro de um iframe que não liberou a localização (ex.: pré-visualização de editor)
+  function quadroBloqueia() {
+    const pp = document.permissionsPolicy || document.featurePolicy;
+    try { return emQuadro() && !!pp && !pp.allowsFeature('geolocation'); } catch (_) { return false; }
+  }
+
+  // Se a pessoa liberar a localização nas configurações do site, tenta de novo sozinho
+  function vigiarPermissao(s) {
+    if (_permVigiada) return;
+    _permVigiada = true;
+    s.onchange = () => {
+      _permEstado = s.state;
+      if (s.state === 'granted' && _motivo === 'negada' && $('pg-mapa').classList.contains('active')) localizar();
+    };
+  }
+
+  // Voltou das configurações do aparelho (ex.: ligou a localização): confere em silêncio e, se voltou, localiza
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { _saiuEm = Date.now(); return; }
+    if (!_mapa || _posReal || _motivo !== 'desligado' || Date.now() - _saiuEm < 2000) return;
+    const id = _locId;
+    navigator.geolocation.getCurrentPosition(() => { if (id === _locId && !_posReal) localizar(); },
+      () => {}, { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 });
+  });
+
+  // Região aproximada (cidade) pelo IP; tenta cada serviço por até 4 s
+  function regiaoPorIP() {
+    if (!_regiaoIP) {
+      _regiaoIP = (async () => {
+        for (const [url, ler] of IP_GEO) {
+          const ctrl = new AbortController(), t = setTimeout(() => ctrl.abort(), 4000);
+          try {
+            const res = await fetch(url, { signal: ctrl.signal });
+            if (!res.ok) continue;
+            const d = ler(await res.json()) || [];
+            const lat = parseFloat(d[0]), lng = parseFloat(d[1]);
+            if (Number.isFinite(lat) && Number.isFinite(lng) && (lat || lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180)
+              return { lat, lng, cidade: d[2] || '' };
+          } catch (_) { /* tenta o próximo serviço */ }
+          finally { clearTimeout(t); }
+        }
+        return null;
+      })();
+      _regiaoIP.then(r => { if (!r) _regiaoIP = null; });   // falhou: tenta de novo na próxima vez
+    }
+    return _regiaoIP;
+  }
+  const rotuloRegiao = r => (r.cidade || 'sua região') + ' (aproximado)';
+
+  // O aparelho não entregou a localização: explica o motivo e mostra algo útil no mapa
+  async function semGPS(id, motivo) {
+    if (id !== _locId) return;
+    _motivo = motivo;
+    if (CARTOES[motivo]) {                       // negada, quadro, esperando: a pessoa precisa agir
+      mostrarCartao(motivo);
+      mostrarFundo(id);
+      return;
+    }
+    const [aviso, textoCartao] = MOTIVOS[motivo];
+    if (_posReal) {                              // mantém a última posição do GPS
+      esconderOverlay();
+      mostrarNota(aviso + ' Mostrando a última localização encontrada.');
+      return;
+    }
+    mostrarCarregando('Procurando sua região…');
+    const r = await regiaoPorIP();
+    if (id !== _locId || _posReal) return;       // o GPS respondeu enquanto isso
+    if (!r) { mostrarCartao('falha', textoCartao); mostrarFundo(id); return; }
+    esconderOverlay();
+    if (!(_posAuto && _pos.lat === r.lat && _pos.lng === r.lng))
+      definirPosicao(r.lat, r.lng, { auto: true, rotulo: rotuloRegiao(r) });
+    mostrarNota(aviso + ' Mostrando sua região aproximada.');
+  }
+
+  // Atrás do cartão de ajuda: região aproximada (ou o local padrão) com os serviços
+  async function mostrarFundo(id) {
+    if (_pos) return;
+    const r = await regiaoPorIP();
+    if (id !== _locId || _pos) return;
+    if (r) definirPosicao(r.lat, r.lng, { auto: true, rotulo: rotuloRegiao(r) });
+    else definirPosicao(LOCAL_PADRAO.lat, LOCAL_PADRAO.lng, { auto: true, rotulo: LOCAL_PADRAO.nome });
+  }
+
+  async function buscarEndereco(ev) {
+    ev.preventDefault();
+    const termo = $('inp-busca').value.trim();
+    if (!termo) return;
+    if (!_mapa) { showToast('O mapa ainda não carregou.'); return; }
+    cancelarLocalizacao();
+    mostrarCarregando('Procurando "' + termo + '"…');
+    try {
+      const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=br&accept-language=pt-BR&q=' + encodeURIComponent(termo);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(res.status);
+      const r = (await res.json())[0];
+      if (!r) throw new Error('vazio');
+      $('inp-busca').blur();
+      definirPosicao(parseFloat(r.lat), parseFloat(r.lon), { rotulo: r.display_name.split(',').slice(0, 2).join(',') });
+    } catch (e) {
+      if (_pos) esconderOverlay(); else mostrarCartao('falha');
+      showToast(e.message === 'vazio' ? 'Não encontramos esse lugar. Tente incluir a cidade.' : 'Não foi possível buscar agora. Tente de novo.');
+    }
+  }
+
+  // real: veio do aparelho · auto: região aproximada ou local padrão (sem o marcador "você está aqui")
+  function definirPosicao(lat, lng, { real = false, precisao = 0, rotulo = '', auto = false } = {}) {
+    _pos = { lat, lng }; _posReal = real; _posAuto = auto; _rotuloPos = real ? '' : rotulo;
+    _precisao = precisao; _mapaMexido = false;
+    if (!auto) esconderOverlay();
+    esconderNota();
+    _mapa.invalidateSize();
+    _mapa.setView([lat, lng], auto ? 14 : 15);
+
+    if (auto) {
+      if (_marcadorEu) { _mapa.removeLayer(_marcadorEu); _marcadorEu = null; }
+    } else {
+      if (!_marcadorEu) {
+        const icone = L.divIcon({ html: '<div class="me"></div>', iconSize: [20, 20], iconAnchor: [10, 10], className: '' });
+        _marcadorEu = L.marker([lat, lng], { icon: icone, zIndexOffset: 1000 }).addTo(_mapa);
+      } else _marcadorEu.setLatLng([lat, lng]);
+      _marcadorEu.bindPopup('<b>' + (real ? 'Você está aqui' : esc(_rotuloPos || 'Local escolhido')) + '</b>');
+    }
+    desenharCirculo(real ? precisao : 0);
+    buscarLocais();
+  }
+
+  // O GPS melhorou depois da primeira posição: move o marcador sem atrapalhar quem mexe no mapa
+  function refinarPosicao(lat, lng, precisao) {
+    const antes = _pos;
+    _pos = { lat, lng }; _precisao = precisao;
+    if (_marcadorEu) _marcadorEu.setLatLng([lat, lng]);
+    desenharCirculo(precisao);
+    if (distancia(antes, _pos) > 250) {         // mudou bastante: recentraliza e refaz a lista
+      if (!_mapaMexido) _mapa.setView([lat, lng], _mapa.getZoom());
+      buscarLocais();
+    }
+  }
+
+  // Círculo mostra a margem de erro quando a localização é imprecisa
+  function desenharCirculo(precisao) {
+    if (_circulo) { _mapa.removeLayer(_circulo); _circulo = null; }
+    if (precisao > 60) {
+      _circulo = L.circle([_pos.lat, _pos.lng], { radius: Math.min(precisao, 3000), color: '#D62B2E', weight: 1.5, fillOpacity: .08 }).addTo(_mapa);
+    }
+  }
+
+  // — Busca de locais (OpenStreetMap / Overpass) —
+  function consultaOverpass(raio, lat, lng) {
+    // Retângulo em volta do ponto: no Overpass é bem mais rápido que "around" (que estourava o tempo)
+    const dLat = raio / 111320, dLng = raio / (111320 * Math.cos(lat * Math.PI / 180));
+    const bbox = [lat - dLat, lng - dLng, lat + dLat, lng + dLng].map(n => n.toFixed(5)).join(',');
+    // nwr = pontos, prédios e áreas; "out center tags" devolve só o centro e as etiquetas
+    return `[out:json][timeout:25][bbox:${bbox}];(
+      nwr["amenity"~"^(hospital|clinic|doctors|pharmacy|police|fire_station)$"];
+      nwr["healthcare"~"^(hospital|clinic|centre|pharmacy)$"];
+    );out center tags;`;
+  }
+
+  // Pergunta a um servidor; se ele falhar, passa ao próximo na hora, e se demorar
+  // mais de 6 s, chama o próximo em paralelo e fica com a primeira resposta válida.
+  function chamarOverpass(consulta) {
+    return new Promise(resolve => {
+      let i = 0, pendentes = 0, feito = false, prox;
+      const ctrls = [];
+      const terminar = v => {
+        if (feito) return;
+        feito = true; clearTimeout(prox);
+        ctrls.forEach(c => c.abort());
+        resolve(v);
+      };
+      const iniciar = () => {
+        clearTimeout(prox);
+        if (feito) return;
+        if (i >= OVERPASS.length) { if (!pendentes) terminar(null); return; }
+        const url = OVERPASS[i++], ctrl = new AbortController();
+        ctrls.push(ctrl); pendentes++;
+        const timer = setTimeout(() => ctrl.abort(), 30000);
+        prox = setTimeout(iniciar, 6000);
+        fetch(url, {
+          method: 'POST', signal: ctrl.signal,
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: 'data=' + encodeURIComponent(consulta),
+        })
+          .then(res => { if (!res.ok) throw new Error(res.status); return res.json(); })
+          .then(data => {
+            // Servidor sobrecarregado responde 200 com "remark" de erro e lista vazia
+            if (!Array.isArray(data.elements)) throw new Error('formato');
+            if (!data.elements.length && /error|timed out|out of memory/i.test(data.remark || '')) throw new Error(data.remark);
+            terminar(data.elements);
+          })
+          .catch(() => { /* tenta o próximo servidor */ })
+          .finally(() => { clearTimeout(timer); pendentes--; if (!feito) iniciar(); });
+      };
+      iniciar();
+    });
+  }
+
+  // — Cache no aparelho: o mapa abre na hora em lugares já consultados (útil com internet fraca) —
+  const chaveCache = p => 'eva_locais_' + p.lat.toFixed(2) + '_' + p.lng.toFixed(2);
+  function lerCache(p) {
+    try {
+      const c = JSON.parse(localStorage.getItem(chaveCache(p)) || 'null');
+      return c && Date.now() - c.t < CACHE_VALIDADE ? c.el : null;
+    } catch (_) { return null; }
+  }
+  function gravarCache(p, elementos) {
+    // Guarda só o necessário para não lotar o armazenamento
+    const el = elementos.map(e => {
+      const t = e.tags || {}, tags = {};
+      ['amenity', 'healthcare', 'name', 'official_name', 'short_name', 'operator', 'phone', 'contact:phone']
+        .forEach(k => { if (t[k]) tags[k] = t[k]; });
+      return { lat: e.lat ?? e.center?.lat, lon: e.lon ?? e.center?.lon, tags };
+    });
+    try { localStorage.setItem(chaveCache(p), JSON.stringify({ t: Date.now(), el })); } catch (_) {}
+  }
+
+  function classificar(tags) {
+    const am = tags.amenity || '', hc = tags.healthcare || '';
+    const nome = tags.name || tags.official_name || tags.short_name || '';
+    if (am === 'police') return 'police';
+    if (am === 'fire_station') return 'fire';
+    if (am === 'pharmacy' || hc === 'pharmacy') return 'pharmacy';
+    const saude = ['hospital', 'clinic', 'doctors'].includes(am) || ['hospital', 'clinic', 'centre'].includes(hc);
+    if (!saude) return null;
+    if (/\bupa\b|pronto[\s-]?socorro|pronto[\s-]?atendimento|\bspa\b|emerg[êe]ncia/i.test(nome)) return 'upa';
+    if (am === 'hospital' || hc === 'hospital') return 'hospital';
+    return 'clinic';
+  }
+
+  function distancia(a, b) {
+    const R = 6371000, rad = x => x * Math.PI / 180;
+    const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  const fmtDist = m => m < 1000 ? Math.max(10, Math.round(m / 10) * 10) + ' m' : (m / 1000).toFixed(1).replace('.', ',') + ' km';
+
+  async function buscarLocais() {
+    if (!_pos || !_mapa) return;
+    const id = ++_buscaId, origem = { ..._pos };
+
+    // Mostra na hora o que já estiver guardado e atualiza em segundo plano
+    const guardado = lerCache(origem);
+    if (guardado) mostrarLocais(guardado, origem, false);
+    setStatus(guardado ? 'Atualizando locais…' : 'Buscando hospitais, farmácias e outros serviços…');
+
+    let elementos = null;
+    for (const raio of RAIOS) {
+      elementos = await chamarOverpass(consultaOverpass(raio, origem.lat, origem.lng));
+      if (id !== _buscaId) return;                // o usuário já mudou de lugar: descarta
+      if (elementos === null || elementos.some(el => classificar(el.tags || {}))) break;
+    }
+    if (elementos === null) {
+      if (guardado) setStatus(`${_locais.length} locais (salvos no aparelho)`, { sumir: true });
+      else setStatus('Os servidores do mapa estão ocupados.', { tentar: true });
+      return;
+    }
+    if (elementos.length) gravarCache(origem, elementos);
+    mostrarLocais(elementos, origem, true);
+  }
+
+  function mostrarLocais(elementos, origem, avisar) {
+    _locais = elementos.map(el => {
+      const lat = el.lat ?? el.center?.lat, lng = el.lon ?? el.center?.lon;
+      const tags = el.tags || {};
+      const type = classificar(tags);
+      if (lat == null || lng == null || !type) return null;
+      const tel = (tags.phone || tags['contact:phone'] || '').split(/[;,/]/)[0].trim();
+      return {
+        lat, lng, type, tel,
+        nome: tags.name || tags.official_name || tags.operator || PLACE_TYPES[type].label,
+        dist: distancia(origem, { lat, lng }),
+      };
+    }).filter(Boolean).sort((a, b) => a.dist - b.dist).slice(0, MAX_MARCADORES);
+
+    _locais.forEach(l => {
+      const cfg = PLACE_TYPES[l.type];
+      const icone = L.divIcon({
+        html: `<div class="pin" style="--bg:${cfg.bg};--fg:${cfg.fg}">${ic(cfg.icon)}</div>`,
+        iconSize: [34, 34], iconAnchor: [17, 17], popupAnchor: [0, -16], className: '',
+      });
+      const rota = `https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}`;
+      const telLink = l.tel.replace(/[^\d+]/g, '');
+      l.rota = rota; l.telLink = telLink;
+      l.m = L.marker([l.lat, l.lng], { icon: icone, title: l.nome }).bindPopup(
+        `<div class="popup-title">${esc(l.nome)}</div>
+         <div class="popup-type">${cfg.label} · ${fmtDist(l.dist)}</div>
+         <div class="popup-row">
+           <a class="popup-btn" href="${rota}" target="_blank" rel="noopener">Como chegar</a>
+           ${telLink ? `<a class="popup-btn alt" href="tel:${esc(telLink)}">Ligar</a>` : ''}
+         </div>`, { maxWidth: 240 });
+    });
+
+    aplicarFiltro();
+    if (!avisar) return;
+    if (_locais.length) setStatus(`${_locais.length} locais encontrados`, { sumir: true });
+    else setStatus('Nenhum local encontrado por aqui.', { tentar: true });
+  }
 
   function filtrarMapa(btn) {
     document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
     _filtroAtivo = btn.dataset.q;
-    if (_leafletReady) _aplicarFiltro(_filtroAtivo);
+    if (_mapa) aplicarFiltro();
   }
 
-  function _aplicarFiltro(tipo) {
-    _allMarkers.forEach(({m, type}) => {
-      (tipo === 'todos' || tipo === type) ? m.addTo(_leafletMap) : _leafletMap.removeLayer(m);
-    });
+  function aplicarFiltro() {
+    _camada.clearLayers();
+    const visiveis = _locais.filter(l => _filtroAtivo === 'todos' || l.type === _filtroAtivo);
+    visiveis.forEach(l => l.m.addTo(_camada));
+    renderLista(visiveis);
   }
 
-  function recarregarMapa() {
-    _lat = null; _lng = null; _mapaIniciado = false;
-    const lw = document.getElementById('leaflet-wrapper');
-    if (lw) lw.style.display = 'none';
-    document.getElementById('map-loading').style.display = 'flex';
-    document.getElementById('map-spinner').style.display = 'block';
-    document.getElementById('map-loading-msg').textContent = 'Obtendo sua localização...';
-    document.getElementById('map-permission-card').style.display = 'none';
-    _iniciarGeolocalizacao();
-  }
-
-  function _mostrarCardPermissao() {
-    document.getElementById('map-spinner').style.display = 'none';
-    document.getElementById('map-loading-msg').textContent = '';
-    document.getElementById('map-permission-card').style.display = 'block';
-  }
-
-  function tentarLocalizacaoNovamente() {
-    document.getElementById('map-permission-card').style.display = 'none';
-    document.getElementById('map-spinner').style.display = 'block';
-    document.getElementById('map-loading-msg').textContent = 'Obtendo sua localização...';
-    _pedirLocalizacao();
-  }
-
-  function _usarLocalizacaoPadrao() {
-    document.getElementById('map-permission-card').style.display = 'none';
-    document.getElementById('map-spinner').style.display = 'block';
-    document.getElementById('map-loading-msg').textContent = 'Usando localização padrão...';
-    _lat = -23.5505; _lng = -46.6333;
-    _mostrarLeaflet(_lat, _lng);
-  }
-
-  function _pedirLocalizacao() {
-    navigator.geolocation.getCurrentPosition(
-      pos => { _lat = pos.coords.latitude; _lng = pos.coords.longitude; _mostrarLeaflet(_lat, _lng); },
-      err => { err.code === 1 ? _mostrarCardPermissao() : _usarLocalizacaoPadrao(); },
-      { enableHighAccuracy: true, timeout: 12000 }
-    );
-  }
-
-  async function _iniciarGeolocalizacao() {
-    if (!navigator.geolocation) { _usarLocalizacaoPadrao(); return; }
-    if (navigator.permissions) {
-      try {
-        const s = await navigator.permissions.query({ name: 'geolocation' });
-        if (s.state === 'denied') { _mostrarCardPermissao(); return; }
-      } catch (_) {}
+  function renderLista(visiveis) {
+    const el = $('near');
+    if (!_pos) { el.innerHTML = ''; return; }
+    const titulo = 'Mais perto de ' + (_posReal ? 'você' : esc(_rotuloPos || 'local escolhido'));
+    if (!visiveis.length) {
+      el.innerHTML = `<h2>${titulo}</h2><p>Nenhum local deste tipo por perto. Tente outro filtro.</p>`;
+      return;
     }
-    _pedirLocalizacao();
+    el.innerHTML = `<h2>${titulo}</h2><ul>` + visiveis.slice(0, MAX_LISTA).map(l => {
+      const cfg = PLACE_TYPES[l.type];
+      return `<li>
+        <button class="near-main" data-i="${_locais.indexOf(l)}">
+          <span class="pin" style="--bg:${cfg.bg};--fg:${cfg.fg}">${ic(cfg.icon)}</span>
+          <span><span class="nm">${esc(l.nome)}</span><span class="sb">${cfg.label} · ${fmtDist(l.dist)}</span></span>
+        </button>
+        ${l.telLink ? `<a class="near-act" href="tel:${esc(l.telLink)}" aria-label="Ligar para ${esc(l.nome)}">${ic('phone')}</a>` : ''}
+        <a class="near-act go" href="${l.rota}" target="_blank" rel="noopener" aria-label="Como chegar a ${esc(l.nome)}">${ic('route')}</a>
+      </li>`;
+    }).join('') + '</ul>';
+    el.scrollTop = 0;
   }
 
-  function _mostrarLeaflet(lat, lng) {
-    document.getElementById('map-loading').style.display = 'none';
-    let wrap = document.getElementById('leaflet-wrapper');
-    if (!wrap) {
-      wrap = document.createElement('div');
-      wrap.id = 'leaflet-wrapper';
-      wrap.style.cssText = 'flex:1;display:flex;position:relative';
-      const statusEl = document.createElement('div');
-      statusEl.id = 'map-status'; statusEl.className = 'map-status';
-      const mapDiv = document.createElement('div');
-      mapDiv.id = 'leaflet-map'; mapDiv.style.cssText = 'flex:1';
-      wrap.appendChild(statusEl); wrap.appendChild(mapDiv);
-      document.getElementById('pg-mapa').appendChild(wrap);
-      if (!document.getElementById('leaflet-css')) {
-        const css = document.createElement('link');
-        css.id = 'leaflet-css'; css.rel = 'stylesheet';
-        css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        document.head.appendChild(css);
-      }
-      _carregarLeafletJS(() => _inicLeaflet(lat, lng));
-    } else {
-      wrap.style.display = 'flex';
-      if (_leafletReady) { _leafletMap.setView([lat, lng], 15); _userMarker.setLatLng([lat, lng]); _buscarLocais(lat, lng); }
+  // Toque em um item da lista: leva o mapa até o local e abre o balão
+  $('near').addEventListener('click', e => {
+    const b = e.target.closest('.near-main');
+    if (!b) return;
+    const l = _locais[+b.dataset.i];
+    if (!l) return;
+    _mapaMexido = true;
+    _mapa.setView([l.lat, l.lng], Math.max(_mapa.getZoom(), 16));
+    l.m.openPopup();
+  });
+
+  function setStatus(msg, { sumir = false, tentar = false } = {}) {
+    const el = $('map-status');
+    clearTimeout(_statusTimer);
+    if (!msg) { el.classList.remove('show'); return; }
+    el.textContent = msg;
+    if (tentar) {
+      const b = document.createElement('button');
+      b.textContent = 'Tentar de novo';
+      b.onclick = buscarLocais;
+      el.appendChild(b);
     }
-  }
-
-  function _carregarLeafletJS(cb) {
-    if (window.L) { cb(); return; }
-    const s = document.createElement('script');
-    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    s.onload = cb; document.head.appendChild(s);
-  }
-
-  function _inicLeaflet(lat, lng) {
-    _leafletReady = true;
-    _leafletMap = L.map('leaflet-map', { zoomControl: true }).setView([lat, lng], 15);
-    setTimeout(() => _leafletMap.invalidateSize(), 100);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      { attribution: '© OpenStreetMap', maxZoom: 19 }).addTo(_leafletMap);
-    const pulse = L.divIcon({
-      html: `<div style="width:18px;height:18px;border-radius:50%;background:#1d4ed8;
-                         border:3px solid #fff;box-shadow:0 0 0 5px rgba(29,78,216,.25)"></div>`,
-      iconSize:[18,18], iconAnchor:[9,9], className:''
-    });
-    _userMarker = L.marker([lat,lng],{icon:pulse,zIndexOffset:1000})
-      .addTo(_leafletMap).bindPopup('<b>📍 Você está aqui</b>');
-    _buscarLocais(lat, lng);
-  }
-
-  async function _buscarLocais(lat, lng) {
-    _setStatus('Buscando locais próximos...');
-    const r = 5000;
-    const q = `[out:json][timeout:25];(
-      node["amenity"="hospital"](around:${r},${lat},${lng});
-      way["amenity"="hospital"](around:${r},${lat},${lng});
-      node["amenity"="clinic"](around:${r},${lat},${lng});
-      node["healthcare"="centre"](around:${r},${lat},${lng});
-      node["amenity"="pharmacy"](around:${r},${lat},${lng});
-      node["amenity"="police"](around:${r},${lat},${lng});
-    );out body center;`;
-    try {
-      const res  = await fetch('https://overpass-api.de/api/interpreter', {method:'POST', body:q});
-      const data = await res.json();
-      _allMarkers.forEach(({m}) => _leafletMap.removeLayer(m));
-      _allMarkers = [];
-      data.elements.forEach(el => {
-        const clat = el.lat ?? el.center?.lat;
-        const clng = el.lon ?? el.center?.lon;
-        if (!clat || !clng) return;
-        const am = el.tags?.amenity || '';
-        const hc = el.tags?.healthcare || '';
-        const nm = el.tags?.name || 'Sem nome';
-        const ph = el.tags?.phone || '';
-        let type;
-        if      (am==='hospital'||hc==='hospital') type = /upa|pronto.socorro/i.test(nm) ? 'upa' : 'hospital';
-        else if (am==='clinic'||hc==='centre')      type = 'clinic';
-        else if (am==='pharmacy')                   type = 'pharmacy';
-        else if (am==='police')                     type = 'police';
-        else return;
-        const cfg  = PLACE_TYPES[type];
-        const icon = L.divIcon({
-          html:`<div style="width:34px;height:34px;border-radius:50%;background:${cfg.color};
-                            border:2px solid #fff;display:flex;align-items:center;
-                            justify-content:center;font-size:17px;
-                            box-shadow:0 2px 6px rgba(0,0,0,.3)">${cfg.emoji}</div>`,
-          iconSize:[34,34], iconAnchor:[17,17], className:''
-        });
-        const gm = `https://www.google.com/maps/search/?api=1&query=${clat},${clng}`;
-        const popup = `<div class="popup-title">${nm}</div>
-          <div class="popup-type">${cfg.emoji} ${cfg.label}</div>
-          ${ph?`<div style="font-size:12px;color:#6b7280;margin-bottom:8px">📞 ${ph}</div>`:''}
-          <button class="popup-btn" onclick="window.open('${gm}','_blank')">Ver no Google Maps</button>`;
-        const m = L.marker([clat,clng],{icon}).addTo(_leafletMap).bindPopup(popup,{maxWidth:220});
-        _allMarkers.push({m, type});
-      });
-      _setStatus(_allMarkers.length > 0 ? `${_allMarkers.length} locais encontrados` : 'Nenhum local encontrado.');
-      if (_allMarkers.length > 0) setTimeout(() => _setStatus(''), 3000);
-      _aplicarFiltro(_filtroAtivo);
-    } catch { _setStatus('Erro ao buscar locais.'); setTimeout(() => _setStatus(''), 3000); }
-  }
-
-  function _setStatus(msg) {
-    const el = document.getElementById('map-status');
-    if (!el) return;
-    msg ? (el.textContent = msg, el.classList.add('show')) : el.classList.remove('show');
-  }
-
-  // ── Toast ─────────────────────────────────────────────────────────────
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
+    el.classList.add('show');
+    if (sumir) _statusTimer = setTimeout(() => el.classList.remove('show'), 3000);
   }
 </script>
 </body>
 </html>
+
